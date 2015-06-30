@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <declare-styleable name="MusicItemView">
+
+        <attr name="item_divider_height" format="dimension"/>
+
+        <attr name="item_divider_background" format="color"/>
+
+    </declare-styleable>
+
+</resources>

@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="utf-8"?>
+<com.guoyonghui.musicplayer.view.MusicItemView xmlns:android="http://schemas.android.com/apk/res/android"
+                                               xmlns:app="http://schemas.android.com/apk/res-auto"
+                                               android:layout_width="match_parent"
+                                               android:layout_height="@dimen/music_item_height"
+                                               android:background="@color/music_item_background"
+                                               android:minHeight="@dimen/music_item_height"
+                                               app:item_divider_background="@color/divider_background"
+                                               app:item_divider_height="@dimen/divider_height">
+
+    <ImageView
+        android:id="@+id/music_album_art"
+        android:layout_width="@dimen/music_item_album_art_size"
+        android:layout_height="@dimen/music_item_album_art_size"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true"
+        android:layout_centerVertical="true"
+        android:contentDescription="@string/description_album_art"/>
+
+    <ImageView
+        android:id="@+id/status"
+        android:layout_width="@dimen/music_item_status_size"
+        android:layout_height="@dimen/music_item_status_size"
+        android:layout_alignParentEnd="true"
+        android:layout_alignParentRight="true"
+        android:layout_centerVertical="true"
+        android:contentDescription="@string/description_status"
+        android:padding="@dimen/music_item_status_padding"
+        android:src="@drawable/ic_status_playing"
+        android:visibility="gone"/>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true"
+        android:layout_centerVertical="true"
+        android:layout_marginLeft="@dimen/music_item_text_margin_start"
+        android:layout_marginStart="@dimen/music_item_text_margin_start"
+        android:layout_toLeftOf="@id/status"
+        android:layout_toStartOf="@id/status"
+        android:orientation="vertical">
+
+        <TextView
+            android:id="@+id/music_title"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:ellipsize="end"
+            android:maxLines="1"
+            android:textAppearance="?android:attr/textAppearanceMedium"
+            android:textColor="@android:color/black"
+            android:textStyle="bold"/>
+
+        <TextView
+            android:id="@+id/music_artist"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:ellipsize="end"
+            android:maxLines="1"
+            android:textAppearance="?android:attr/textAppearanceSmall"
+            android:textColor="@android:color/darker_gray"/>
+
+    </LinearLayout>
+
+</com.guoyonghui.musicplayer.view.MusicItemView>

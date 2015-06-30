@@ -1,0 +1,28 @@
+<resources>
+
+    <!-- Base application theme. -->
+    <style name="AppTheme" parent="Theme.AppCompat.Light.DarkActionBar">
+
+        <item name="android:actionBarStyle">@style/MusicPlayerActionBarStyle</item>
+
+        <!--Support library compatibility-->
+        <item name="actionBarStyle">@style/MusicPlayerActionBarStyle</item>
+
+    </style>
+
+    <style name="MusicPlayerActionBarStyle" parent="Widget.AppCompat.ActionBar.Solid">
+
+        <item name="android:titleTextStyle">@style/MusicPlayerActionBarTitleStyle</item>
+
+        <!--Support library compatibility-->
+        <item name="titleTextStyle">@style/MusicPlayerActionBarTitleStyle</item>
+
+    </style>
+
+    <style name="MusicPlayerActionBarTitleStyle" parent="TextAppearance.AppCompat.Widget.ActionBar.Title">
+
+        <item name="android:textStyle">bold</item>
+
+    </style>
+
+</resources>
