@@ -1,4 +1,4 @@
-package com.guoyonghui.musicplayer.ui;
+package com.guoyonghui.musicplayer.ui.fragment;
 
 import android.app.Activity;
 import android.content.BroadcastReceiver;
@@ -18,6 +18,8 @@ import android.widget.TextView;
 
 import com.guoyonghui.musicplayer.R;
 import com.guoyonghui.musicplayer.model.Music;
+import com.guoyonghui.musicplayer.service.MusicService;
+import com.guoyonghui.musicplayer.ui.BaseApplication;
 import com.nostra13.universalimageloader.core.DisplayImageOptions;
 import com.nostra13.universalimageloader.core.ImageLoader;
 import com.nostra13.universalimageloader.core.display.SimpleBitmapDisplayer;
@@ -27,9 +29,7 @@ import com.nostra13.universalimageloader.core.display.SimpleBitmapDisplayer;
  */
 public class PlaybackControlFragment extends Fragment implements View.OnClickListener {
 
-    public static final String ACTION_MUSIC_PLAYED = "com.guoyonghui.musicplayer.ACTION_MUSIC_PLAYED";
-
-    public static final String EXTRA_MUSIC_PLAYED = "com.guoyonghui.musicplayer.EXTRA_MUSIC_PLAYED";
+    public static final String EXTRA_MUSIC_PLAYED_DATA = "com.guoyonghui.musicplayer.EXTRA_MUSIC_PLAYED_DATA";
 
     /**
      * 是否正在播放
@@ -79,7 +79,7 @@ public class PlaybackControlFragment extends Fragment implements View.OnClickLis
     /**
      * 音乐控制事件监听器
      */
-    private OnPlaybackControlListener mOnPlaybackControlListener;
+    private OnPlaybackControlCallback mOnPlaybackControlCallback;
 
     /**
      * ACTION_MUSIC_PLAYED广播接收器
@@ -87,8 +87,8 @@ public class PlaybackControlFragment extends Fragment implements View.OnClickLis
     private BroadcastReceiver mMusicPlayedReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
-            if (ACTION_MUSIC_PLAYED.equals(intent.getAction())) {
-                Music music = intent.getParcelableExtra(EXTRA_MUSIC_PLAYED);
+            if (MusicService.ACTION_MUSIC_PLAYED.equals(intent.getAction())) {
+                Music music = intent.getParcelableExtra(EXTRA_MUSIC_PLAYED_DATA);
 
                 if (music == null) {
                     return;
@@ -102,7 +102,7 @@ public class PlaybackControlFragment extends Fragment implements View.OnClickLis
     /**
      * 音乐控制事件监听器回调接口
      */
-    public interface OnPlaybackControlListener {
+    public interface OnPlaybackControlCallback {
         void onMusicSwitchControl(boolean switchNext);
 
         void onMusicPlayPauseControl(boolean play);
@@ -111,6 +111,7 @@ public class PlaybackControlFragment extends Fragment implements View.OnClickLis
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        setRetainInstance(true);
     }
 
     @Nullable
@@ -131,10 +132,10 @@ public class PlaybackControlFragment extends Fragment implements View.OnClickLis
     public void onAttach(Activity activity) {
         super.onAttach(activity);
 
-        mOnPlaybackControlListener = (OnPlaybackControlListener) activity;
+        mOnPlaybackControlCallback = (OnPlaybackControlCallback) activity;
 
         IntentFilter musicPlayedFilter = new IntentFilter();
-        musicPlayedFilter.addAction(ACTION_MUSIC_PLAYED);
+        musicPlayedFilter.addAction(MusicService.ACTION_MUSIC_PLAYED);
         getActivity().registerReceiver(mMusicPlayedReceiver, musicPlayedFilter);
     }
 
@@ -142,7 +143,7 @@ public class PlaybackControlFragment extends Fragment implements View.OnClickLis
     public void onDetach() {
         super.onDetach();
 
-        mOnPlaybackControlListener = null;
+        mOnPlaybackControlCallback = null;
 
         getActivity().unregisterReceiver(mMusicPlayedReceiver);
     }
@@ -151,16 +152,16 @@ public class PlaybackControlFragment extends Fragment implements View.OnClickLis
     public void onClick(View v) {
         switch (v.getId()) {
             case R.id.prev:
-                mOnPlaybackControlListener.onMusicSwitchControl(false);
+                mOnPlaybackControlCallback.onMusicSwitchControl(false);
                 break;
             case R.id.next:
-                mOnPlaybackControlListener.onMusicSwitchControl(true);
+                mOnPlaybackControlCallback.onMusicSwitchControl(true);
                 break;
             case R.id.play_pause:
                 mPlayPauseButton.setImageResource(mIsPlaying ? R.drawable.ic_control_play_white_36dp : R.drawable.ic_control_pause_white_36dp);
                 mIsPlaying = !mIsPlaying;
 
-                mOnPlaybackControlListener.onMusicPlayPauseControl(mIsPlaying);
+                mOnPlaybackControlCallback.onMusicPlayPauseControl(mIsPlaying);
                 break;
 
             default:

@@ -25,4 +25,8 @@
 
     </style>
 
+    <style name="StartUpTheme" parent="Theme.AppCompat.Light.NoActionBar">
+
+    </style>
+
 </resources>

@@ -1,4 +1,4 @@
-package com.guoyonghui.musicplayer.ui;
+package com.guoyonghui.musicplayer.ui.fragment;
 
 import android.app.Activity;
 import android.content.BroadcastReceiver;
@@ -19,6 +19,9 @@ import android.widget.TextView;
 
 import com.guoyonghui.musicplayer.R;
 import com.guoyonghui.musicplayer.model.Music;
+import com.guoyonghui.musicplayer.service.MusicService;
+import com.guoyonghui.musicplayer.ui.BaseApplication;
+import com.guoyonghui.musicplayer.ui.activity.MusicPlayerActivity;
 import com.guoyonghui.musicplayer.view.ElasticListView;
 import com.nostra13.universalimageloader.core.DisplayImageOptions;
 import com.nostra13.universalimageloader.core.ImageLoader;
@@ -32,9 +35,7 @@ import java.util.List;
  */
 public class MusicBrowserFragment extends Fragment {
 
-    public static final String ACTION_MUSIC_SWITCHED = "com.guoyonghui.musicplayer.ui.ACTION_MUSIC_SWITCHED";
-
-    public static final String EXTRA_MUSIC_SWITCHED_POSITION = "com.guoyonghui.musicplayer.ui.EXTRA_MUSIC_SWITCHED_POSITION";
+    public static final String EXTRA_MUSIC_PLAYED_POSITION = "com.guoyonghui.musicplayer.ui.EXTRA_MUSIC_PLAYED_POSITION";
 
     /**
      * 当前播放歌曲的位置
@@ -54,7 +55,7 @@ public class MusicBrowserFragment extends Fragment {
     /**
      * 音乐列表项选中事件监听器
      */
-    private OnMusicItemSelectedListener mOnMusicItemSelectedListener;
+    private OnMusicItemSelectedCallback mOnMusicItemSelectedCallback;
 
     /**
      * 开源的第三方图片异步加载库 - ImageLoader
@@ -72,19 +73,12 @@ public class MusicBrowserFragment extends Fragment {
     private BroadcastReceiver mMusicSwitchedReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
-            if (ACTION_MUSIC_SWITCHED.equals(intent.getAction())) {
-                if (mCurrentPlayingPosition == -1) {
-                    mCurrentPlayingPosition = 0;
-                    updateMusicItemUI(mCurrentPlayingPosition, true);
+            if (MusicService.ACTION_MUSIC_PLAYED.equals(intent.getAction())) {
+                updateMusicItemUI(false);
 
-                    return;
-                }
+                mCurrentPlayingPosition = intent.getIntExtra(EXTRA_MUSIC_PLAYED_POSITION, 0);
 
-                updateMusicItemUI(mCurrentPlayingPosition, false);
-
-                mCurrentPlayingPosition = intent.getIntExtra(EXTRA_MUSIC_SWITCHED_POSITION, 0);
-
-                updateMusicItemUI(mCurrentPlayingPosition, true);
+                updateMusicItemUI(true);
             }
         }
     };
@@ -92,7 +86,7 @@ public class MusicBrowserFragment extends Fragment {
     /**
      * 音乐列表项选中事件监听器回调接口
      */
-    public interface OnMusicItemSelectedListener {
+    public interface OnMusicItemSelectedCallback {
         void onMusicItemSelected(int position);
     }
 
@@ -114,6 +108,7 @@ public class MusicBrowserFragment extends Fragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        setRetainInstance(true);
 
         mMusicDatas = getArguments().getParcelableArrayList(MusicPlayerActivity.EXTRA_MUSIC_DATAS);
     }
@@ -136,10 +131,10 @@ public class MusicBrowserFragment extends Fragment {
     public void onAttach(Activity activity) {
         super.onAttach(activity);
 
-        mOnMusicItemSelectedListener = (OnMusicItemSelectedListener) activity;
+        mOnMusicItemSelectedCallback = (OnMusicItemSelectedCallback) activity;
 
         IntentFilter musicSwitchedFilter = new IntentFilter();
-        musicSwitchedFilter.addAction(ACTION_MUSIC_SWITCHED);
+        musicSwitchedFilter.addAction(MusicService.ACTION_MUSIC_PLAYED);
         getActivity().registerReceiver(mMusicSwitchedReceiver, musicSwitchedFilter);
     }
 
@@ -147,7 +142,7 @@ public class MusicBrowserFragment extends Fragment {
     public void onDetach() {
         super.onDetach();
 
-        mOnMusicItemSelectedListener = null;
+        mOnMusicItemSelectedCallback = null;
 
         getActivity().unregisterReceiver(mMusicSwitchedReceiver);
     }
@@ -172,15 +167,13 @@ public class MusicBrowserFragment extends Fragment {
                 if (mCurrentPlayingPosition == position) {
                     return;
                 }
-                if (mCurrentPlayingPosition != -1) {
-                    updateMusicItemUI(mCurrentPlayingPosition, false);
-                }
+                updateMusicItemUI(false);
 
                 mCurrentPlayingPosition = position;
 
-                updateMusicItemUI(mCurrentPlayingPosition, true);
+                updateMusicItemUI(true);
 
-                mOnMusicItemSelectedListener.onMusicItemSelected(mCurrentPlayingPosition);
+                mOnMusicItemSelectedCallback.onMusicItemSelected(mCurrentPlayingPosition);
             }
         });
     }
@@ -205,11 +198,14 @@ public class MusicBrowserFragment extends Fragment {
     /**
      * 更新列表项的播放状态UI
      *
-     * @param position  更新的列表项位置
      * @param isPlaying true - 正在播放 false - 未在播放
      */
-    private void updateMusicItemUI(int position, boolean isPlaying) {
-        Music music = mMusicDatas.get(position);
+    private void updateMusicItemUI(boolean isPlaying) {
+        if (mCurrentPlayingPosition == -1) {
+            return;
+        }
+
+        Music music = mMusicDatas.get(mCurrentPlayingPosition);
 
         if (music == null) {
             return;
@@ -220,8 +216,8 @@ public class MusicBrowserFragment extends Fragment {
         int firstVisiblePosition = mMusicList.getFirstVisiblePosition();
         int lastVisiblePosition = mMusicList.getLastVisiblePosition();
 
-        if (position >= firstVisiblePosition && position <= lastVisiblePosition) {
-            MusicBrowserAdapter.ViewHolder viewHolder = (MusicBrowserAdapter.ViewHolder) (mMusicList.getChildAt(position - firstVisiblePosition).getTag());
+        if (mCurrentPlayingPosition >= firstVisiblePosition && mCurrentPlayingPosition <= lastVisiblePosition) {
+            MusicBrowserAdapter.ViewHolder viewHolder = (MusicBrowserAdapter.ViewHolder) (mMusicList.getChildAt(mCurrentPlayingPosition - firstVisiblePosition).getTag());
             viewHolder.statusImageView.setVisibility(isPlaying ? View.VISIBLE : View.GONE);
         }
     }

@@ -1,4 +1,4 @@
-package com.guoyonghui.musicplayer.ui;
+package com.guoyonghui.musicplayer.ui.activity;
 
 import android.content.BroadcastReceiver;
 import android.content.ComponentName;
@@ -6,7 +6,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.ServiceConnection;
-import android.media.MediaPlayer;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.support.v4.app.Fragment;
@@ -18,14 +17,14 @@ import android.view.MenuItem;
 import com.guoyonghui.musicplayer.R;
 import com.guoyonghui.musicplayer.model.Music;
 import com.guoyonghui.musicplayer.service.*;
+import com.guoyonghui.musicplayer.ui.fragment.MusicBrowserFragment;
+import com.guoyonghui.musicplayer.ui.fragment.PlaybackControlFragment;
 import com.guoyonghui.musicplayer.util.MusicHelper;
 
-import java.io.IOException;
 import java.util.ArrayList;
-import java.util.List;
 
 
-public class MusicPlayerActivity extends AppCompatActivity implements MusicBrowserFragment.OnMusicItemSelectedListener, PlaybackControlFragment.OnPlaybackControlListener {
+public class MusicPlayerActivity extends AppCompatActivity implements MusicBrowserFragment.OnMusicItemSelectedCallback, PlaybackControlFragment.OnPlaybackControlCallback {
 
     public static final String ACTION_MUSIC_COMPLETION = "com.guoyonghui.musicplayer.ACTION_MUSIC_COMPLETION";
 
@@ -35,11 +34,6 @@ public class MusicPlayerActivity extends AppCompatActivity implements MusicBrows
      * 音乐数据
      */
     private ArrayList<Music> mMusicDatas;
-
-    /**
-     * 正在播放的位置
-     */
-    private int mCurrentPlayingPosition = -1;
 
     /**
      * MusicService实例
@@ -78,24 +72,13 @@ public class MusicPlayerActivity extends AppCompatActivity implements MusicBrows
         initDatas();
 
         initViews();
-    }
 
-    @Override
-    protected void onStart() {
-        super.onStart();
 
         Intent intent = new Intent(this, MusicService.class);
+        intent.putParcelableArrayListExtra(EXTRA_MUSIC_DATAS, mMusicDatas);
         bindService(intent, mMusicServiceConnection, BIND_AUTO_CREATE);
     }
 
-    @Override
-    protected void onStop() {
-        super.onStop();
-
-        unbindService(mMusicServiceConnection);
-    }
-
-    @Override
     public void onAttachedToWindow() {
         super.onAttachedToWindow();
 
@@ -109,6 +92,13 @@ public class MusicPlayerActivity extends AppCompatActivity implements MusicBrows
         super.onDetachedFromWindow();
 
         unregisterReceiver(mMusicCompletionReceiver);
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+
+        unbindService(mMusicServiceConnection);
     }
 
     @Override
@@ -130,51 +120,20 @@ public class MusicPlayerActivity extends AppCompatActivity implements MusicBrows
 
     @Override
     public void onMusicItemSelected(int position) {
-        mCurrentPlayingPosition = position;
-
-        notifyMusicPlayed();
-
-        Music music = mMusicDatas.get(mCurrentPlayingPosition);
-        mMusicService.start(music);
+        mMusicService.startMusic(position);
     }
 
     @Override
     public void onMusicSwitchControl(boolean switchNext) {
-        if (mCurrentPlayingPosition == -1) {
-            mCurrentPlayingPosition = 0;
-        } else {
-            if(switchNext) {
-                mCurrentPlayingPosition = (mCurrentPlayingPosition + 1) % mMusicDatas.size();
-            } else {
-                mCurrentPlayingPosition = (mCurrentPlayingPosition - 1 < 0) ? mMusicDatas.size() - 1 : mCurrentPlayingPosition - 1;
-            }
-        }
-
-        notifyMusicSwitched();
-        notifyMusicPlayed();
-
-        Music music = mMusicDatas.get(mCurrentPlayingPosition);
-        mMusicService.start(music);
+        mMusicService.switchMusic(switchNext);
     }
 
     @Override
     public void onMusicPlayPauseControl(boolean play) {
-        if(mCurrentPlayingPosition == -1) {
-            mCurrentPlayingPosition = 0;
-
-            notifyMusicSwitched();
-            notifyMusicPlayed();
-
-            Music music = mMusicDatas.get(mCurrentPlayingPosition);
-            mMusicService.start(music);
-
-            return;
-        }
-
         if(play) {
-            mMusicService.resume();
+            mMusicService.resumeMusic();
         } else {
-            mMusicService.pause();
+            mMusicService.pauseMusic();
         }
     }
 
@@ -182,7 +141,7 @@ public class MusicPlayerActivity extends AppCompatActivity implements MusicBrows
      * 初始化数据
      */
     private void initDatas() {
-        mMusicDatas = MusicHelper.scanMusic(this);
+        mMusicDatas = getIntent().getParcelableArrayListExtra(EXTRA_MUSIC_DATAS);
     }
 
     /**
@@ -206,24 +165,6 @@ public class MusicPlayerActivity extends AppCompatActivity implements MusicBrows
                     .add(R.id.playback_control_container, playbackControlFragment)
                     .commit();
         }
-    }
-
-    /**
-     * 发送音乐切换广播通知
-     */
-    private void notifyMusicSwitched() {
-        Intent intent = new Intent(MusicBrowserFragment.ACTION_MUSIC_SWITCHED);
-        intent.putExtra(MusicBrowserFragment.EXTRA_MUSIC_SWITCHED_POSITION, mCurrentPlayingPosition);
-        sendBroadcast(intent);
-    }
-
-    /**
-     * 发送音乐播放广播通知
-     */
-    private void notifyMusicPlayed() {
-        Intent intent = new Intent(PlaybackControlFragment.ACTION_MUSIC_PLAYED);
-        intent.putExtra(PlaybackControlFragment.EXTRA_MUSIC_PLAYED, mMusicDatas.get(mCurrentPlayingPosition));
-        sendBroadcast(intent);
     }
 
 }
