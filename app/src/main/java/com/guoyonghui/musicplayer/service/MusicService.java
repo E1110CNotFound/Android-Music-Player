@@ -17,13 +17,25 @@ import java.io.IOException;
 import java.util.ArrayList;
 
 /**
- * Created by 永辉 on 2015/6/30.
+ * MusicService
+ *
+ * @author Guo Yonghui
+ *
+ * 音乐播放服务类
  */
 public class MusicService extends Service {
 
     private static final String TAG = LogHelper.makeLogTag(MusicService.class);
 
-    public static final String ACTION_MUSIC_PLAYED = "com.guoyonghui.musicplayer.ACTION_MUSIC_PLAYED";
+    /**
+     * ACTION - 当前播放的音乐
+     */
+    public static final String ACTION_CURRENT_PLAYING_MUSIC = "com.guoyonghui.musicplayer.ACTION_CURRENT_PLAYING_MUSIC";
+
+    /**
+     * 当前播放音乐在列表中的位置
+     */
+    private int mCurrentPlayingPosition;
 
     /**
      * MediaPlayer实例
@@ -35,14 +47,8 @@ public class MusicService extends Service {
      */
     private ArrayList<Music> mMusicDatas;
 
-    /**
-     * 当前播放音乐在列表中的位置
-     */
-    private int mCurrentPlayingPosition;
-
     @Override
     public IBinder onBind(Intent intent) {
-
         mMusicDatas = intent.getParcelableArrayListExtra(MusicPlayerActivity.EXTRA_MUSIC_DATAS);
 
         Log.i(TAG, "music service onBind(), receive music datas with size " + mMusicDatas.size() + ".");
@@ -57,11 +63,20 @@ public class MusicService extends Service {
         mMediaPlayer = new MediaPlayer();
 
         mCurrentPlayingPosition = -1;
-
     }
 
     /**
-     * 从头开始播放音乐
+     * 开始播放音乐
+     *
+     * @param position 音乐的位置
+     */
+    public void startMusic(int position) {
+        mCurrentPlayingPosition = position;
+        startMusic();
+    }
+
+    /**
+     * 开始播放音乐
      */
     public void startMusic() {
         Music music = mMusicDatas.get(mCurrentPlayingPosition);
@@ -69,7 +84,7 @@ public class MusicService extends Service {
             return;
         }
 
-        notifyMusicPlayed();
+        notifyCurrentPlayingMusic();
 
         mMediaPlayer.reset();
         try {
@@ -86,38 +101,33 @@ public class MusicService extends Service {
             e.printStackTrace();
         }
     }
+
     /**
-     * 从头开始播放音乐
+     * 播放/暂停音乐
      *
-     * @param position 音乐的位置
+     * @param play true - 播放 false - 暂停
      */
-    public void startMusic(int position) {
-        mCurrentPlayingPosition = position;
-        startMusic();
-    }
+    public void playpauseMusic(boolean play) {
+        if(play) {
+            if(mCurrentPlayingPosition == -1) {
+                mCurrentPlayingPosition = 0;
+                startMusic();
+                return;
+            }
 
-    /**
-     * 恢复播放音乐
-     */
-    public void resumeMusic() {
-        if(mCurrentPlayingPosition == -1) {
-            mCurrentPlayingPosition = 0;
-            startMusic();
-            return;
-        }
-
-        mMediaPlayer.start();
-    }
-
-    /**
-     * 暂停音乐播放
-     */
-    public void pauseMusic() {
-        if(mMediaPlayer.isPlaying()) {
-            mMediaPlayer.pause();
+            mMediaPlayer.start();
+        } else {
+            if(mMediaPlayer.isPlaying()) {
+                mMediaPlayer.pause();
+            }
         }
     }
 
+    /**
+     * 切换音乐
+     *
+     * @param switchNext true - 切换至下一首 false - 切换至上一首
+     */
     public void switchMusic(boolean switchNext) {
         if(mCurrentPlayingPosition == -1) {
             mCurrentPlayingPosition = 0;
@@ -133,12 +143,15 @@ public class MusicService extends Service {
         startMusic();
     }
 
-    private void notifyMusicPlayed() {
+    /**
+     * 发送广播通知fragment当前播放的歌曲
+     */
+    private void notifyCurrentPlayingMusic() {
         Music music = mMusicDatas.get(mCurrentPlayingPosition);
 
-        Intent intent = new Intent(ACTION_MUSIC_PLAYED);
-        intent.putExtra(PlaybackControlFragment.EXTRA_MUSIC_PLAYED_DATA, music);
-        intent.putExtra(MusicBrowserFragment.EXTRA_MUSIC_PLAYED_POSITION, mCurrentPlayingPosition);
+        Intent intent = new Intent(ACTION_CURRENT_PLAYING_MUSIC);
+        intent.putExtra(PlaybackControlFragment.EXTRA_CURRENT_PLAYING_MUSIC_DATA, music);
+        intent.putExtra(MusicBrowserFragment.EXTRA_CURRENT_PLAYING_MUSIC_POSITION, mCurrentPlayingPosition);
         sendBroadcast(intent);
     }
 

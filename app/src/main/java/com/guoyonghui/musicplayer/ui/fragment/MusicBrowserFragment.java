@@ -31,16 +31,25 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Created by 永辉 on 2015/6/29.
+ * MusicBrowserFragment
+ *
+ * @author Guo Yonghui
+ *
+ * 1.封装音乐列表的相关操作
+ * 2.通过回调函数将音乐列表相关操作通知托管该fragment的activity
+ * 3.接收MusicService发送的当前播放音乐广播并根据附在广播中的数据更新UI
  */
 public class MusicBrowserFragment extends Fragment {
 
-    public static final String EXTRA_MUSIC_PLAYED_POSITION = "com.guoyonghui.musicplayer.ui.EXTRA_MUSIC_PLAYED_POSITION";
+    /**
+     * EXTRA - 当前播放的音乐的位置
+     */
+    public static final String EXTRA_CURRENT_PLAYING_MUSIC_POSITION = "com.guoyonghui.musicplayer.EXTRA_CURRENT_PLAYING_MUSIC_POSITION";
 
     /**
-     * 当前播放歌曲的位置
+     * 当前播放音乐在列表中的位置
      */
-    private int mCurrentPlayingPosition = -1;
+    private int mCurrentPlayingPosition;
 
     /**
      * 音乐列表
@@ -53,69 +62,78 @@ public class MusicBrowserFragment extends Fragment {
     private ArrayList<Music> mMusicDatas;
 
     /**
-     * 音乐列表项选中事件监听器
-     */
-    private OnMusicItemSelectedCallback mOnMusicItemSelectedCallback;
-
-    /**
-     * 开源的第三方图片异步加载库 - ImageLoader
+     * ImageLoader - 开源第三方异步加载图片库
      */
     private ImageLoader mImageLoader;
 
     /**
-     * 开源的第三方图片异步加载库 - DisplayImageOptions
+     * DisplayImageOptions - 开源第三方异步加载图片库
      */
     private DisplayImageOptions mOptions;
 
     /**
-     * ACTION_MUSIC_CHANGED广播接收器
+     * MusicBrowserFragment回调接口实例
      */
-    private BroadcastReceiver mMusicSwitchedReceiver = new BroadcastReceiver() {
+    private Callback mCallback;
+
+    /**
+     * 当前播放音乐广播接收器
+     */
+    private BroadcastReceiver mCurrentPlayingMusicReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
-            if (MusicService.ACTION_MUSIC_PLAYED.equals(intent.getAction())) {
-                updateMusicItemUI(false);
+            if(MusicService.ACTION_CURRENT_PLAYING_MUSIC.equals(intent.getAction())) {
+                updateMusicListItemUI(false);
 
-                mCurrentPlayingPosition = intent.getIntExtra(EXTRA_MUSIC_PLAYED_POSITION, 0);
+                mCurrentPlayingPosition = intent.getIntExtra(EXTRA_CURRENT_PLAYING_MUSIC_POSITION, -1);
 
-                updateMusicItemUI(true);
+                updateMusicListItemUI(true);
             }
         }
     };
 
     /**
-     * 音乐列表项选中事件监听器回调接口
+     * MusicBrowserFragment回调接口
      */
-    public interface OnMusicItemSelectedCallback {
-        void onMusicItemSelected(int position);
+    public interface Callback {
+        /**
+         * 音乐列表项被点击的回调函数
+         *
+         * @param position 被点击的音乐列表项位置
+         */
+        void onMusicItemClick(int position);
     }
 
     /**
-     * 创建一个附有音乐数据参数的MusicBrowserFragment实例
+     * 创建附有音乐数据参数的MusicBrowserFragment实例
      *
      * @param musicDatas 音乐数据
      * @return 附有音乐数据参数的MusicBrowserFragment实例
      */
     public static MusicBrowserFragment newInstance(ArrayList<Music> musicDatas) {
         MusicBrowserFragment fragment = new MusicBrowserFragment();
+
         Bundle args = new Bundle();
         args.putParcelableArrayList(MusicPlayerActivity.EXTRA_MUSIC_DATAS, musicDatas);
+
         fragment.setArguments(args);
 
         return fragment;
     }
 
     @Override
-    public void onCreate(Bundle savedInstanceState) {
+    public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setRetainInstance(true);
+
+        mCurrentPlayingPosition = -1;
 
         mMusicDatas = getArguments().getParcelableArrayList(MusicPlayerActivity.EXTRA_MUSIC_DATAS);
     }
 
     @Nullable
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+    public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View rootView = inflater.inflate(R.layout.fragment_music_browser, container, false);
 
         initViews(rootView);
@@ -131,26 +149,25 @@ public class MusicBrowserFragment extends Fragment {
     public void onAttach(Activity activity) {
         super.onAttach(activity);
 
-        mOnMusicItemSelectedCallback = (OnMusicItemSelectedCallback) activity;
+        mCallback = (Callback) activity;
 
-        IntentFilter musicSwitchedFilter = new IntentFilter();
-        musicSwitchedFilter.addAction(MusicService.ACTION_MUSIC_PLAYED);
-        getActivity().registerReceiver(mMusicSwitchedReceiver, musicSwitchedFilter);
+        IntentFilter filter = new IntentFilter(MusicService.ACTION_CURRENT_PLAYING_MUSIC);
+        getActivity().registerReceiver(mCurrentPlayingMusicReceiver, filter);
     }
 
     @Override
     public void onDetach() {
         super.onDetach();
 
-        mOnMusicItemSelectedCallback = null;
+        mCallback = null;
 
-        getActivity().unregisterReceiver(mMusicSwitchedReceiver);
+        getActivity().unregisterReceiver(mCurrentPlayingMusicReceiver);
     }
 
     /**
      * 初始化视图
      *
-     * @param rootView 根视图
+     * @param rootView 当前视图的根视图
      */
     private void initViews(View rootView) {
         mMusicList = (ElasticListView) rootView.findViewById(R.id.music_list);
@@ -164,16 +181,17 @@ public class MusicBrowserFragment extends Fragment {
         mMusicList.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                if (mCurrentPlayingPosition == position) {
+                if(mCurrentPlayingPosition == position) {
                     return;
                 }
-                updateMusicItemUI(false);
+
+                updateMusicListItemUI(false);
 
                 mCurrentPlayingPosition = position;
 
-                updateMusicItemUI(true);
+                updateMusicListItemUI(true);
 
-                mOnMusicItemSelectedCallback.onMusicItemSelected(mCurrentPlayingPosition);
+                mCallback.onMusicItemClick(mCurrentPlayingPosition);
             }
         });
     }
@@ -196,17 +214,16 @@ public class MusicBrowserFragment extends Fragment {
     }
 
     /**
-     * 更新列表项的播放状态UI
+     * 更新音乐列表项UI
      *
      * @param isPlaying true - 正在播放 false - 未在播放
      */
-    private void updateMusicItemUI(boolean isPlaying) {
+    private void updateMusicListItemUI(boolean isPlaying) {
         if (mCurrentPlayingPosition == -1) {
             return;
         }
 
         Music music = mMusicDatas.get(mCurrentPlayingPosition);
-
         if (music == null) {
             return;
         }
@@ -215,15 +232,15 @@ public class MusicBrowserFragment extends Fragment {
 
         int firstVisiblePosition = mMusicList.getFirstVisiblePosition();
         int lastVisiblePosition = mMusicList.getLastVisiblePosition();
-
         if (mCurrentPlayingPosition >= firstVisiblePosition && mCurrentPlayingPosition <= lastVisiblePosition) {
             MusicBrowserAdapter.ViewHolder viewHolder = (MusicBrowserAdapter.ViewHolder) (mMusicList.getChildAt(mCurrentPlayingPosition - firstVisiblePosition).getTag());
-            viewHolder.statusImageView.setVisibility(isPlaying ? View.VISIBLE : View.GONE);
+            viewHolder.statusImageView.setVisibility(isPlaying ? View.VISIBLE : View.INVISIBLE);
         }
     }
 
     /**
      * 音乐列表适配器
+     * 使用ViewHolder模式提高加载效率
      */
     private class MusicBrowserAdapter extends ArrayAdapter<Music> {
 
@@ -255,10 +272,7 @@ public class MusicBrowserFragment extends Fragment {
 
             Music music = getItem(position);
 
-            mImageLoader.displayImage(ContentUris.withAppendedId(BaseApplication.ALBUM_ART_URI, music.getAlbumId()).toString(),
-                    viewHolder.musicAlbumArtImageView,
-                    mOptions);
-
+            mImageLoader.displayImage(ContentUris.withAppendedId(BaseApplication.ALBUM_ART_URI, music.getAlbumId()).toString(), viewHolder.musicAlbumArtImageView, mOptions);
             viewHolder.statusImageView.setVisibility(music.isPlaying() ? View.VISIBLE : View.GONE);
             viewHolder.musicTitleTextView.setText(music.getTitle());
             viewHolder.musicArtistTextView.setText(music.getArtist());
@@ -277,3 +291,39 @@ public class MusicBrowserFragment extends Fragment {
         }
     }
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

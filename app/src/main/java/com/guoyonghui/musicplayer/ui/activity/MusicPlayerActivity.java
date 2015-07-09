@@ -1,10 +1,7 @@
 package com.guoyonghui.musicplayer.ui.activity;
 
-import android.content.BroadcastReceiver;
 import android.content.ComponentName;
-import android.content.Context;
 import android.content.Intent;
-import android.content.IntentFilter;
 import android.content.ServiceConnection;
 import android.os.Bundle;
 import android.os.IBinder;
@@ -16,18 +13,26 @@ import android.view.MenuItem;
 
 import com.guoyonghui.musicplayer.R;
 import com.guoyonghui.musicplayer.model.Music;
-import com.guoyonghui.musicplayer.service.*;
+import com.guoyonghui.musicplayer.service.MusicService;
 import com.guoyonghui.musicplayer.ui.fragment.MusicBrowserFragment;
 import com.guoyonghui.musicplayer.ui.fragment.PlaybackControlFragment;
-import com.guoyonghui.musicplayer.util.MusicHelper;
 
 import java.util.ArrayList;
 
+/**
+ * MusicPlayerActivity
+ *
+ * @author Guo Yonghui
+ *
+ * 1.托管fragment
+ * 2.通过回调函数得到fragment中相应的操作
+ * 3.根据得到的fragment中的操作与MusicService进行交互
+ */
+public class MusicPlayerActivity extends AppCompatActivity implements MusicBrowserFragment.Callback, PlaybackControlFragment.Callback {
 
-public class MusicPlayerActivity extends AppCompatActivity implements MusicBrowserFragment.OnMusicItemSelectedCallback, PlaybackControlFragment.OnPlaybackControlCallback {
-
-    public static final String ACTION_MUSIC_COMPLETION = "com.guoyonghui.musicplayer.ACTION_MUSIC_COMPLETION";
-
+    /**
+     * EXTRA - 音乐数据
+     */
     public static final String EXTRA_MUSIC_DATAS = "com.guoyonghui.musicplayer.EXTRA_MUSIC_DATAS";
 
     /**
@@ -55,15 +60,6 @@ public class MusicPlayerActivity extends AppCompatActivity implements MusicBrows
         }
     };
 
-    private BroadcastReceiver mMusicCompletionReceiver = new BroadcastReceiver() {
-        @Override
-        public void onReceive(Context context, Intent intent) {
-            if(ACTION_MUSIC_COMPLETION.equals(intent.getAction())) {
-                onMusicSwitchControl(true);
-            }
-        }
-    };
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -73,25 +69,9 @@ public class MusicPlayerActivity extends AppCompatActivity implements MusicBrows
 
         initViews();
 
-
         Intent intent = new Intent(this, MusicService.class);
         intent.putParcelableArrayListExtra(EXTRA_MUSIC_DATAS, mMusicDatas);
         bindService(intent, mMusicServiceConnection, BIND_AUTO_CREATE);
-    }
-
-    public void onAttachedToWindow() {
-        super.onAttachedToWindow();
-
-        IntentFilter musicCompletionFilter = new IntentFilter();
-        musicCompletionFilter.addAction(ACTION_MUSIC_COMPLETION);
-        registerReceiver(mMusicCompletionReceiver, musicCompletionFilter);
-    }
-
-    @Override
-    public void onDetachedFromWindow() {
-        super.onDetachedFromWindow();
-
-        unregisterReceiver(mMusicCompletionReceiver);
     }
 
     @Override
@@ -119,22 +99,18 @@ public class MusicPlayerActivity extends AppCompatActivity implements MusicBrows
     }
 
     @Override
-    public void onMusicItemSelected(int position) {
+    public void onMusicItemClick(int position) {
         mMusicService.startMusic(position);
     }
 
     @Override
-    public void onMusicSwitchControl(boolean switchNext) {
+    public void onMusicSwitch(boolean switchNext) {
         mMusicService.switchMusic(switchNext);
     }
 
     @Override
-    public void onMusicPlayPauseControl(boolean play) {
-        if(play) {
-            mMusicService.resumeMusic();
-        } else {
-            mMusicService.pauseMusic();
-        }
+    public void onMusicPlayPause(boolean play) {
+        mMusicService.playpauseMusic(play);
     }
 
     /**

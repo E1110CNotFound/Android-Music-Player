@@ -25,31 +25,40 @@ import com.nostra13.universalimageloader.core.ImageLoader;
 import com.nostra13.universalimageloader.core.display.SimpleBitmapDisplayer;
 
 /**
- * Created by 永辉 on 2015/6/29.
+ * PlaybackControlFragment
+ *
+ * @author Guo Yonghui
+ *
+ * 1.封装音乐控制的相关操作
+ * 2.通过回调函数将音乐控制相关操作通知托管该fragment的activity
+ * 3.接收MusicService发送的当前播放音乐广播并根据附在广播中的数据更新UI
  */
 public class PlaybackControlFragment extends Fragment implements View.OnClickListener {
 
-    public static final String EXTRA_MUSIC_PLAYED_DATA = "com.guoyonghui.musicplayer.EXTRA_MUSIC_PLAYED_DATA";
+    /**
+     * EXTRA - 当前播放的音乐的数据
+     */
+    public static final String EXTRA_CURRENT_PLAYING_MUSIC_DATA = "com.guoyonghui.musicplayer.EXTRA_CURRENT_PLAYING_MUSIC_DATA";
 
     /**
-     * 是否正在播放
+     * true - 正在播放 false - 未在播放
      */
     private boolean mIsPlaying;
 
     /**
-     * 当前播放歌曲专辑封面视图
+     * 当前播放歌曲封面
      */
-    private ImageView mPlayingAlbumArtImageView;
+    private ImageView mCurrentPlayingAlbumArtImageView;
 
     /**
-     * 当前播放歌曲名称视图
+     * 当前播放歌曲标题
      */
-    private TextView mPlayingTitleTextView;
+    private TextView mCurrentPlayingTitleTextView;
 
     /**
-     * 当前播放歌曲演唱者视图
+     * 当前播放歌曲艺术家
      */
-    private TextView mPlayingArtistTextView;
+    private TextView mCurrentPlayingArtistTextView;
 
     /**
      * 上一首按钮
@@ -67,30 +76,29 @@ public class PlaybackControlFragment extends Fragment implements View.OnClickLis
     private ImageButton mPlayPauseButton;
 
     /**
-     * 开源的第三方图片异步加载库 - ImageLoader
+     * ImageLoader - 开源第三方异步加载图片库
      */
     private ImageLoader mImageLoader;
 
     /**
-     * 开源的第三方图片异步加载库 - DisplayImageOptions
+     * DisplayImageOptions - 开源第三方异步加载图片库
      */
     private DisplayImageOptions mOptions;
 
     /**
-     * 音乐控制事件监听器
+     * PlaybackControlFragment回调接口实例
      */
-    private OnPlaybackControlCallback mOnPlaybackControlCallback;
+    private Callback mCallback;
 
     /**
-     * ACTION_MUSIC_PLAYED广播接收器
+     * 当前播放音乐广播接收器
      */
-    private BroadcastReceiver mMusicPlayedReceiver = new BroadcastReceiver() {
+    private BroadcastReceiver mCurrentPlayingMusicReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
-            if (MusicService.ACTION_MUSIC_PLAYED.equals(intent.getAction())) {
-                Music music = intent.getParcelableExtra(EXTRA_MUSIC_PLAYED_DATA);
-
-                if (music == null) {
+            if(MusicService.ACTION_CURRENT_PLAYING_MUSIC.equals(intent.getAction())) {
+                Music music = intent.getParcelableExtra(EXTRA_CURRENT_PLAYING_MUSIC_DATA);
+                if(music == null) {
                     return;
                 }
 
@@ -100,12 +108,22 @@ public class PlaybackControlFragment extends Fragment implements View.OnClickLis
     };
 
     /**
-     * 音乐控制事件监听器回调接口
+     * PlaybackControlFragment回调接口
      */
-    public interface OnPlaybackControlCallback {
-        void onMusicSwitchControl(boolean switchNext);
+    public interface Callback {
+        /**
+         * 音乐切换回调函数
+         *
+         * @param switchNext true - 切换至下一首 false - 切换至上一首
+         */
+        void onMusicSwitch(boolean switchNext);
 
-        void onMusicPlayPauseControl(boolean play);
+        /**
+         * 音乐播放/暂停回调函数
+         *
+         * @param play true - 播放 false - 暂停
+         */
+        void onMusicPlayPause(boolean play);
     }
 
     @Override
@@ -116,7 +134,7 @@ public class PlaybackControlFragment extends Fragment implements View.OnClickLis
 
     @Nullable
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+    public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View rootView = inflater.inflate(R.layout.fragment_playback_control, container, false);
 
         initViews(rootView);
@@ -132,36 +150,37 @@ public class PlaybackControlFragment extends Fragment implements View.OnClickLis
     public void onAttach(Activity activity) {
         super.onAttach(activity);
 
-        mOnPlaybackControlCallback = (OnPlaybackControlCallback) activity;
+        mCallback= (Callback) activity;
 
-        IntentFilter musicPlayedFilter = new IntentFilter();
-        musicPlayedFilter.addAction(MusicService.ACTION_MUSIC_PLAYED);
-        getActivity().registerReceiver(mMusicPlayedReceiver, musicPlayedFilter);
+        IntentFilter filter = new IntentFilter(MusicService.ACTION_CURRENT_PLAYING_MUSIC);
+        getActivity().registerReceiver(mCurrentPlayingMusicReceiver, filter);
     }
 
     @Override
     public void onDetach() {
         super.onDetach();
 
-        mOnPlaybackControlCallback = null;
+        mCallback = null;
 
-        getActivity().unregisterReceiver(mMusicPlayedReceiver);
+        getActivity().unregisterReceiver(mCurrentPlayingMusicReceiver);
     }
 
     @Override
     public void onClick(View v) {
-        switch (v.getId()) {
+        int id = v.getId();
+
+        switch (id) {
             case R.id.prev:
-                mOnPlaybackControlCallback.onMusicSwitchControl(false);
+                mCallback.onMusicSwitch(false);
                 break;
             case R.id.next:
-                mOnPlaybackControlCallback.onMusicSwitchControl(true);
+                mCallback.onMusicSwitch(true);
                 break;
             case R.id.play_pause:
-                mPlayPauseButton.setImageResource(mIsPlaying ? R.drawable.ic_control_play_white_36dp : R.drawable.ic_control_pause_white_36dp);
                 mIsPlaying = !mIsPlaying;
+                mPlayPauseButton.setImageResource(mIsPlaying ? R.drawable.ic_control_pause_white_36dp : R.drawable.ic_control_play_white_36dp);
 
-                mOnPlaybackControlCallback.onMusicPlayPauseControl(mIsPlaying);
+                mCallback.onMusicPlayPause(mIsPlaying);
                 break;
 
             default:
@@ -172,12 +191,12 @@ public class PlaybackControlFragment extends Fragment implements View.OnClickLis
     /**
      * 初始化视图
      *
-     * @param rootView 根视图
+     * @param rootView 当前视图的根视图
      */
     private void initViews(View rootView) {
-        mPlayingAlbumArtImageView = (ImageView) rootView.findViewById(R.id.playing_album_art);
-        mPlayingTitleTextView = (TextView) rootView.findViewById(R.id.playing_title);
-        mPlayingArtistTextView = (TextView) rootView.findViewById(R.id.playing_artist);
+        mCurrentPlayingAlbumArtImageView = (ImageView) rootView.findViewById(R.id.playing_album_art);
+        mCurrentPlayingTitleTextView = (TextView) rootView.findViewById(R.id.playing_title);
+        mCurrentPlayingArtistTextView = (TextView) rootView.findViewById(R.id.playing_artist);
         mPrevButton = (ImageButton) rootView.findViewById(R.id.prev);
         mNextButton = (ImageButton) rootView.findViewById(R.id.next);
         mPlayPauseButton = (ImageButton) rootView.findViewById(R.id.play_pause);
@@ -197,7 +216,7 @@ public class PlaybackControlFragment extends Fragment implements View.OnClickLis
      */
     private void initImageLoader() {
         mOptions = new DisplayImageOptions.Builder()
-                .showImageOnLoading(null)
+                .showImageOnLoading(R.drawable.ic_album_art)
                 .showImageForEmptyUri(R.drawable.ic_album_art)
                 .showImageOnFail(R.drawable.ic_album_art)
                 .cacheInMemory(true)
@@ -212,18 +231,18 @@ public class PlaybackControlFragment extends Fragment implements View.OnClickLis
     /**
      * 更新控制界面UI
      *
-     * @param music 当前正在播放的歌曲
+     * @param music 正在播放的歌曲
      */
     private void updatePlaybackControlUI(Music music) {
         mIsPlaying = true;
 
         mImageLoader.displayImage(ContentUris.withAppendedId(BaseApplication.ALBUM_ART_URI, music.getAlbumId()).toString(),
-                mPlayingAlbumArtImageView,
+                mCurrentPlayingAlbumArtImageView,
                 mOptions);
 
-        mPlayingTitleTextView.setText(music.getTitle());
-        mPlayingArtistTextView.setText(music.getArtist());
+        mCurrentPlayingTitleTextView.setText(music.getTitle());
+        mCurrentPlayingArtistTextView.setText(music.getArtist());
         mPlayPauseButton.setImageResource(R.drawable.ic_control_pause_white_36dp);
-    }
 
+    }
 }
