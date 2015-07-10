@@ -3,6 +3,7 @@ package com.guoyonghui.musicplayer.service;
 import android.app.Service;
 import android.content.Intent;
 import android.media.MediaPlayer;
+import android.media.TimedText;
 import android.os.Binder;
 import android.os.IBinder;
 import android.util.Log;
@@ -20,8 +21,8 @@ import java.util.ArrayList;
  * MusicService
  *
  * @author Guo Yonghui
- *
- * 音乐播放服务类
+ *         <p/>
+ *         音乐播放服务类
  */
 public class MusicService extends Service {
 
@@ -51,9 +52,19 @@ public class MusicService extends Service {
     public IBinder onBind(Intent intent) {
         mMusicDatas = intent.getParcelableArrayListExtra(MusicPlayerActivity.EXTRA_MUSIC_DATAS);
 
-        Log.i(TAG, "music service onBind(), receive music datas with size " + mMusicDatas.size() + ".");
-
         return new MusicBinder();
+    }
+
+    @Override
+    public boolean onUnbind(Intent intent) {
+        if (mMediaPlayer.isPlaying()) {
+            mMediaPlayer.stop();
+        }
+        mMediaPlayer.release();
+        mMediaPlayer = null;
+
+        stopSelf();
+        return super.onUnbind(intent);
     }
 
     @Override
@@ -80,7 +91,7 @@ public class MusicService extends Service {
      */
     public void startMusic() {
         Music music = mMusicDatas.get(mCurrentPlayingPosition);
-        if(music == null) {
+        if (music == null) {
             return;
         }
 
@@ -108,8 +119,8 @@ public class MusicService extends Service {
      * @param play true - 播放 false - 暂停
      */
     public void playpauseMusic(boolean play) {
-        if(play) {
-            if(mCurrentPlayingPosition == -1) {
+        if (play) {
+            if (mCurrentPlayingPosition == -1) {
                 mCurrentPlayingPosition = 0;
                 startMusic();
                 return;
@@ -117,7 +128,7 @@ public class MusicService extends Service {
 
             mMediaPlayer.start();
         } else {
-            if(mMediaPlayer.isPlaying()) {
+            if (mMediaPlayer.isPlaying()) {
                 mMediaPlayer.pause();
             }
         }
@@ -129,13 +140,13 @@ public class MusicService extends Service {
      * @param switchNext true - 切换至下一首 false - 切换至上一首
      */
     public void switchMusic(boolean switchNext) {
-        if(mCurrentPlayingPosition == -1) {
+        if (mCurrentPlayingPosition == -1) {
             mCurrentPlayingPosition = 0;
             startMusic();
             return;
         }
 
-        if(switchNext) {
+        if (switchNext) {
             mCurrentPlayingPosition = (mCurrentPlayingPosition + 1) % mMusicDatas.size();
         } else {
             mCurrentPlayingPosition = ((mCurrentPlayingPosition - 1) < 0) ? (mMusicDatas.size() - 1) : (mCurrentPlayingPosition - 1);
@@ -162,4 +173,5 @@ public class MusicService extends Service {
         }
 
     }
+
 }

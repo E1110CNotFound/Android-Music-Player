@@ -9,12 +9,14 @@ import android.content.IntentFilter;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.guoyonghui.musicplayer.R;
 import com.guoyonghui.musicplayer.model.Music;
@@ -242,7 +244,7 @@ public class PlaybackControlFragment extends Fragment implements View.OnClickLis
 
         mCurrentPlayingTitleTextView.setText(music.getTitle());
         mCurrentPlayingArtistTextView.setText(music.getArtist());
-        mPlayPauseButton.setImageResource(R.drawable.ic_control_pause_white_36dp);
+        mPlayPauseButton.setImageResource(mIsPlaying ? R.drawable.ic_control_pause_white_36dp : R.drawable.ic_control_play_white_36dp);
 
     }
 }
