@@ -34,10 +34,10 @@ import java.util.List;
  * MusicBrowserFragment
  *
  * @author Guo Yonghui
- *
- * 1.封装音乐列表的相关操作
- * 2.通过回调函数将音乐列表相关操作通知托管该fragment的activity
- * 3.接收MusicService发送的当前播放音乐广播并根据附在广播中的数据更新UI
+ *         <p/>
+ *         1.封装音乐列表的相关操作
+ *         2.通过回调函数将音乐列表相关操作通知托管该fragment的activity
+ *         3.接收MusicService发送的当前播放音乐广播并根据附在广播中的数据更新UI
  */
 public class MusicBrowserFragment extends Fragment {
 
@@ -82,7 +82,7 @@ public class MusicBrowserFragment extends Fragment {
     private BroadcastReceiver mCurrentPlayingMusicReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
-            if(MusicService.ACTION_CURRENT_PLAYING_MUSIC.equals(intent.getAction())) {
+            if (MusicService.ACTION_CURRENT_PLAYING_MUSIC.equals(intent.getAction())) {
                 updateMusicListItemUI(false);
 
                 mCurrentPlayingPosition = intent.getIntExtra(EXTRA_CURRENT_PLAYING_MUSIC_POSITION, -1);
@@ -181,7 +181,7 @@ public class MusicBrowserFragment extends Fragment {
         mMusicList.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                if(mCurrentPlayingPosition == position) {
+                if (mCurrentPlayingPosition == position) {
                     return;
                 }
 

@@ -30,10 +30,10 @@ import com.nostra13.universalimageloader.core.display.SimpleBitmapDisplayer;
  * PlaybackControlFragment
  *
  * @author Guo Yonghui
- *
- * 1.封装音乐控制的相关操作
- * 2.通过回调函数将音乐控制相关操作通知托管该fragment的activity
- * 3.接收MusicService发送的当前播放音乐广播并根据附在广播中的数据更新UI
+ *         <p/>
+ *         1.封装音乐控制的相关操作
+ *         2.通过回调函数将音乐控制相关操作通知托管该fragment的activity
+ *         3.接收MusicService发送的当前播放音乐广播并根据附在广播中的数据更新UI
  */
 public class PlaybackControlFragment extends Fragment implements View.OnClickListener {
 
@@ -98,9 +98,9 @@ public class PlaybackControlFragment extends Fragment implements View.OnClickLis
     private BroadcastReceiver mCurrentPlayingMusicReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
-            if(MusicService.ACTION_CURRENT_PLAYING_MUSIC.equals(intent.getAction())) {
+            if (MusicService.ACTION_CURRENT_PLAYING_MUSIC.equals(intent.getAction())) {
                 Music music = intent.getParcelableExtra(EXTRA_CURRENT_PLAYING_MUSIC_DATA);
-                if(music == null) {
+                if (music == null) {
                     return;
                 }
 
@@ -152,7 +152,7 @@ public class PlaybackControlFragment extends Fragment implements View.OnClickLis
     public void onAttach(Activity activity) {
         super.onAttach(activity);
 
-        mCallback= (Callback) activity;
+        mCallback = (Callback) activity;
 
         IntentFilter filter = new IntentFilter(MusicService.ACTION_CURRENT_PLAYING_MUSIC);
         getActivity().registerReceiver(mCurrentPlayingMusicReceiver, filter);

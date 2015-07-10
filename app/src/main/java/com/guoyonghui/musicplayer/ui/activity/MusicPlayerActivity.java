@@ -23,10 +23,10 @@ import java.util.ArrayList;
  * MusicPlayerActivity
  *
  * @author Guo Yonghui
- *
- * 1.托管fragment
- * 2.通过回调函数得到fragment中相应的操作
- * 3.根据得到的fragment中的操作与MusicService进行交互
+ *         <p/>
+ *         1.托管fragment
+ *         2.通过回调函数得到fragment中相应的操作
+ *         3.根据得到的fragment中的操作与MusicService进行交互
  */
 public class MusicPlayerActivity extends AppCompatActivity implements MusicBrowserFragment.Callback, PlaybackControlFragment.Callback {
 

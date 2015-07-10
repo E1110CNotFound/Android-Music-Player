@@ -4,11 +4,16 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.graphics.Color;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
 import android.support.v7.app.AppCompatActivity;
+import android.text.SpannableStringBuilder;
+import android.text.Spanned;
+import android.text.style.ForegroundColorSpan;
 import android.util.Log;
+import android.widget.TextView;
 
 import com.guoyonghui.musicplayer.R;
 import com.guoyonghui.musicplayer.model.Music;
@@ -23,6 +28,8 @@ import java.util.ArrayList;
 public class StartUpActivity extends AppCompatActivity {
 
     public static final String TAG = LogHelper.makeLogTag(StartUpActivity.class);
+
+    private TextView mAppNameTextView;
 
     private BroadcastReceiver mMediaScannerFinishedReceiver = new BroadcastReceiver() {
         @Override
@@ -45,6 +52,11 @@ public class StartUpActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_start_up);
+
+        mAppNameTextView = (TextView) findViewById(R.id.app_name_text);
+        SpannableStringBuilder builder = new SpannableStringBuilder(mAppNameTextView.getText());
+        builder.setSpan(new ForegroundColorSpan(Color.RED), 1, 2, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+        mAppNameTextView.setText(builder);
 
         sendBroadcast(new Intent(Intent.ACTION_MEDIA_MOUNTED, Uri.parse("file://" + Environment.getExternalStorageDirectory().getAbsolutePath())));
     }
