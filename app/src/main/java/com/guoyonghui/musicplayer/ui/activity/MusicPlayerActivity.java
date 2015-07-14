@@ -82,23 +82,6 @@ public class MusicPlayerActivity extends AppCompatActivity implements MusicBrows
     }
 
     @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        getMenuInflater().inflate(R.menu.menu_music_player, menu);
-        return true;
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        int id = item.getItemId();
-
-        if (id == R.id.action_settings) {
-            return true;
-        }
-
-        return super.onOptionsItemSelected(item);
-    }
-
-    @Override
     public void onMusicItemClick(int position) {
         mMusicService.startMusic(position);
     }
@@ -111,6 +94,11 @@ public class MusicPlayerActivity extends AppCompatActivity implements MusicBrows
     @Override
     public void onMusicPlayPause(boolean play) {
         mMusicService.playpauseMusic(play);
+    }
+
+    @Override
+    public void onModeSwitch(int mode) {
+        mMusicService.switchMode(mode);
     }
 
     /**

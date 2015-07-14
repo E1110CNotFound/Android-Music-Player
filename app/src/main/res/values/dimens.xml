@@ -5,17 +5,21 @@
 
     <dimen name="divider_height">1px</dimen>
     
-    <dimen name="music_item_height">64dp</dimen>
+    <dimen name="item_height">64dp</dimen>
+    <dimen name="item_padding">8dp</dimen>
+
     <dimen name="music_item_album_art_size">64dp</dimen>
     <dimen name="music_item_status_size">48dp</dimen>
     <dimen name="music_item_status_padding">8dp</dimen>
     <dimen name="music_item_text_margin_start">72dp</dimen>
 
+    <dimen name="playback_control_info_size">240dp</dimen>
+    <dimen name="playback_control_info_margin">8dp</dimen>
     <dimen name="playback_control_padding">8dp</dimen>
     <dimen name="playback_control_album_art_size">48dp</dimen>
-    <dimen name="playback_control_album_art_horizontal_margin">8dp</dimen>
-    <dimen name="playback_control_button_size">24dp</dimen>
+    <dimen name="playback_control_album_art_padding">8dp</dimen>
+    <dimen name="playback_control_button_size">48dp</dimen>
     <dimen name="playback_control_button_padding">4dp</dimen>
-    <dimen name="playback_control_button_margin">4dp</dimen>
+    <dimen name="playback_control_button_margin">64dp</dimen>
 
 </resources>

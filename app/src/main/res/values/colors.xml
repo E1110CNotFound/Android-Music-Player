@@ -2,9 +2,11 @@
 <resources>
 
     <!--音乐项的背景色-->
-    <color name="music_item_background">#ffeeeeee</color>
+    <color name="item_background">#ffeeeeee</color>
 
     <!--分割线的背景色-->
     <color name="divider_background">#ffc0c0c0</color>
+
+    <color name="title_bar_background">#ff212121</color>
 
 </resources>

@@ -9,19 +9,24 @@ import android.content.IntentFilter;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentManager;
+import android.view.ContextMenu;
 import android.view.LayoutInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.guoyonghui.musicplayer.R;
 import com.guoyonghui.musicplayer.model.Music;
 import com.guoyonghui.musicplayer.service.MusicService;
 import com.guoyonghui.musicplayer.ui.BaseApplication;
 import com.guoyonghui.musicplayer.ui.activity.MusicPlayerActivity;
+import com.guoyonghui.musicplayer.util.LogHelper;
 import com.guoyonghui.musicplayer.view.ElasticListView;
 import com.nostra13.universalimageloader.core.DisplayImageOptions;
 import com.nostra13.universalimageloader.core.ImageLoader;
@@ -142,7 +147,33 @@ public class MusicBrowserFragment extends Fragment {
 
         initImageLoader();
 
+        registerForContextMenu(mMusicList);
+
         return rootView;
+    }
+
+    @Override
+    public void onCreateContextMenu(ContextMenu menu, View v, ContextMenu.ContextMenuInfo menuInfo) {
+        getActivity().getMenuInflater().inflate(R.menu.music_list_context_menu, menu);
+    }
+
+    @Override
+    public boolean onContextItemSelected(MenuItem item) {
+        AdapterView.AdapterContextMenuInfo info = (AdapterView.AdapterContextMenuInfo)item.getMenuInfo();
+        int position = info.position;
+        Music music = (Music) (mMusicList.getAdapter().getItem(position));
+
+        switch (item.getItemId()) {
+            case R.id.action_music_detail:
+                DetailBrowserFragment detailBrowserFragment = DetailBrowserFragment.newInstance(music);
+                FragmentManager fm = getActivity().getSupportFragmentManager();
+                detailBrowserFragment.show(fm, LogHelper.makeLogTag(DetailBrowserFragment.class));
+                break;
+
+            default:
+                break;
+        }
+        return super.onContextItemSelected(item);
     }
 
     @Override

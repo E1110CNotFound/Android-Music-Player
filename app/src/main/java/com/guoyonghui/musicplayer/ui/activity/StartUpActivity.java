@@ -23,7 +23,11 @@ import com.guoyonghui.musicplayer.util.MusicHelper;
 import java.util.ArrayList;
 
 /**
- * Created by 永辉 on 2015/7/9.
+ * StartUpActivity
+ *
+ * @author Guo Yonghui
+ *         <p/>
+ *         应用启动界面，扫描本机音乐并加载数据
  */
 public class StartUpActivity extends AppCompatActivity {
 
@@ -36,9 +40,9 @@ public class StartUpActivity extends AppCompatActivity {
         public void onReceive(Context context, Intent intent) {
             String action = intent.getAction();
 
-            if(Intent.ACTION_MEDIA_SCANNER_STARTED.equals(action)) {
+            if (Intent.ACTION_MEDIA_SCANNER_STARTED.equals(action)) {
                 Log.i(TAG, "media scanner started.");
-            } else if(Intent.ACTION_MEDIA_SCANNER_FINISHED.equals(action)) {
+            } else if (Intent.ACTION_MEDIA_SCANNER_FINISHED.equals(action)) {
                 Log.i(TAG, "media scanner finished.");
 
                 ArrayList<Music> musicDatas = MusicHelper.scanMusic(StartUpActivity.this);
@@ -90,7 +94,7 @@ public class StartUpActivity extends AppCompatActivity {
         intent.putParcelableArrayListExtra(MusicPlayerActivity.EXTRA_MUSIC_DATAS, musicDatas);
         startActivity(intent);
 
-        if(!isFinishing()) {
+        if (!isFinishing()) {
             finish();
         }
     }

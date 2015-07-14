@@ -13,9 +13,11 @@
     <style name="MusicPlayerActionBarStyle" parent="Widget.AppCompat.ActionBar.Solid">
 
         <item name="android:titleTextStyle">@style/MusicPlayerActionBarTitleStyle</item>
+        <item name="android:background">@color/title_bar_background</item>
 
         <!--Support library compatibility-->
         <item name="titleTextStyle">@style/MusicPlayerActionBarTitleStyle</item>
+        <item name="background">@color/title_bar_background</item>
 
     </style>
 

@@ -9,14 +9,12 @@ import android.content.IntentFilter;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.guoyonghui.musicplayer.R;
 import com.guoyonghui.musicplayer.model.Music;
@@ -48,6 +46,11 @@ public class PlaybackControlFragment extends Fragment implements View.OnClickLis
     private boolean mIsPlaying;
 
     /**
+     * 播放模式
+     */
+    private int mPlayMode;
+
+    /**
      * 当前播放歌曲封面
      */
     private ImageView mCurrentPlayingAlbumArtImageView;
@@ -76,6 +79,16 @@ public class PlaybackControlFragment extends Fragment implements View.OnClickLis
      * 播放/暂停按钮
      */
     private ImageButton mPlayPauseButton;
+
+    /**
+     * 随机播放模式按钮
+     */
+    private ImageButton mRandomModeButton;
+
+    /**
+     * 顺序播放模式按钮
+     */
+    private ImageButton mLoopModeButton;
 
     /**
      * ImageLoader - 开源第三方异步加载图片库
@@ -126,12 +139,23 @@ public class PlaybackControlFragment extends Fragment implements View.OnClickLis
          * @param play true - 播放 false - 暂停
          */
         void onMusicPlayPause(boolean play);
+
+        /**
+         * 音乐播放模式切换回调函数
+         *
+         * @param mode 切换至的模式
+         */
+        void onModeSwitch(int mode);
     }
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setRetainInstance(true);
+
+        mIsPlaying = false;
+
+        mPlayMode = MusicService.PLAY_MODE_LOOP;
     }
 
     @Nullable
@@ -184,6 +208,30 @@ public class PlaybackControlFragment extends Fragment implements View.OnClickLis
 
                 mCallback.onMusicPlayPause(mIsPlaying);
                 break;
+            case R.id.loop_mode:
+                if (mPlayMode == MusicService.PLAY_MODE_LOOP) {
+                    return;
+                }
+
+                mPlayMode = MusicService.PLAY_MODE_LOOP;
+
+                mLoopModeButton.setImageResource(R.drawable.ic_mode_loop_on);
+                mRandomModeButton.setImageResource(R.drawable.ic_mode_random_off);
+
+                mCallback.onModeSwitch(mPlayMode);
+                break;
+            case R.id.random_mode:
+                if (mPlayMode == MusicService.PLAY_MODE_RANDOM) {
+                    return;
+                }
+
+                mPlayMode = MusicService.PLAY_MODE_RANDOM;
+
+                mLoopModeButton.setImageResource(R.drawable.ic_mode_loop_off);
+                mRandomModeButton.setImageResource(R.drawable.ic_mode_random_on);
+
+                mCallback.onModeSwitch(mPlayMode);
+                break;
 
             default:
                 break;
@@ -202,6 +250,8 @@ public class PlaybackControlFragment extends Fragment implements View.OnClickLis
         mPrevButton = (ImageButton) rootView.findViewById(R.id.prev);
         mNextButton = (ImageButton) rootView.findViewById(R.id.next);
         mPlayPauseButton = (ImageButton) rootView.findViewById(R.id.play_pause);
+        mLoopModeButton = (ImageButton) rootView.findViewById(R.id.loop_mode);
+        mRandomModeButton = (ImageButton) rootView.findViewById(R.id.random_mode);
     }
 
     /**
@@ -211,6 +261,8 @@ public class PlaybackControlFragment extends Fragment implements View.OnClickLis
         mPrevButton.setOnClickListener(this);
         mNextButton.setOnClickListener(this);
         mPlayPauseButton.setOnClickListener(this);
+        mLoopModeButton.setOnClickListener(this);
+        mRandomModeButton.setOnClickListener(this);
     }
 
     /**
@@ -218,7 +270,6 @@ public class PlaybackControlFragment extends Fragment implements View.OnClickLis
      */
     private void initImageLoader() {
         mOptions = new DisplayImageOptions.Builder()
-                .showImageOnLoading(R.drawable.ic_album_art)
                 .showImageForEmptyUri(R.drawable.ic_album_art)
                 .showImageOnFail(R.drawable.ic_album_art)
                 .cacheInMemory(true)

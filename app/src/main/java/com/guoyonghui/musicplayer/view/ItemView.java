@@ -13,7 +13,7 @@ import com.guoyonghui.musicplayer.R;
 /**
  * Created by 永辉 on 2015/6/29.
  */
-public class MusicItemView extends RelativeLayout {
+public class ItemView extends RelativeLayout {
 
     /**
      * 分割线高度
@@ -35,26 +35,26 @@ public class MusicItemView extends RelativeLayout {
      */
     private Paint mDividerPaint;
 
-    public MusicItemView(Context context) {
+    public ItemView(Context context) {
         super(context);
 
         initialize(null);
     }
 
-    public MusicItemView(Context context, AttributeSet attrs) {
+    public ItemView(Context context, AttributeSet attrs) {
         super(context, attrs);
 
         initialize(attrs);
     }
 
-    public MusicItemView(Context context, AttributeSet attrs, int defStyleAttr) {
+    public ItemView(Context context, AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
 
         initialize(attrs);
     }
 
     private void initialize(AttributeSet attrs) {
-        TypedArray a = getContext().obtainStyledAttributes(attrs, R.styleable.MusicItemView);
+        TypedArray a = getContext().obtainStyledAttributes(attrs, R.styleable.ItemView);
 
         //设置分割线高度的默认值
         mDividerHeight = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_PX, 1, getResources().getDisplayMetrics());
@@ -64,9 +64,9 @@ public class MusicItemView extends RelativeLayout {
 
         if (a != null) {
             try {
-                mDividerHeight = (int) a.getDimension(R.styleable.MusicItemView_item_divider_height, TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_PX, 1, getResources().getDisplayMetrics()));
+                mDividerHeight = (int) a.getDimension(R.styleable.ItemView_item_divider_height, TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_PX, 1, getResources().getDisplayMetrics()));
 
-                mDividerColor = a.getColor(R.styleable.MusicItemView_item_divider_background, getResources().getColor(R.color.divider_background));
+                mDividerColor = a.getColor(R.styleable.ItemView_item_divider_background, getResources().getColor(R.color.divider_background));
             } finally {
                 a.recycle();
             }

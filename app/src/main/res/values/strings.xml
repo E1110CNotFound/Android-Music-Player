@@ -1,12 +1,14 @@
 <resources>
     <string name="app_name">FEVER</string>
 
-    <string name="action_settings">Settings</string>
+    <string name="action_music_detail">详情</string>
 
     <string name="description_album_art">Album Art</string>
     <string name="description_status">Status</string>
     <string name="description_next">Next</string>
     <string name="description_prev">Prev</string>
     <string name="description_play_pause">Play/Pause</string>
+    <string name="description_mode_loop">Loop Mode</string>
+    <string name="description_mode_random">Random Mode</string>
 
 </resources>

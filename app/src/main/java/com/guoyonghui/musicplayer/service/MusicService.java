@@ -16,6 +16,7 @@ import com.guoyonghui.musicplayer.util.LogHelper;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Random;
 
 /**
  * MusicService
@@ -34,9 +35,24 @@ public class MusicService extends Service {
     public static final String ACTION_CURRENT_PLAYING_MUSIC = "com.guoyonghui.musicplayer.ACTION_CURRENT_PLAYING_MUSIC";
 
     /**
+     * 播放模式 - 随机播放
+     */
+    public static final int PLAY_MODE_RANDOM = 0;
+
+    /**
+     * 播放模式 - 顺序播放
+     */
+    public static final int PLAY_MODE_LOOP = 1;
+
+    /**
      * 当前播放音乐在列表中的位置
      */
     private int mCurrentPlayingPosition;
+
+    /**
+     * 当前音乐播放模式
+     */
+    private int mCurrentPlayingMode;
 
     /**
      * MediaPlayer实例
@@ -74,6 +90,8 @@ public class MusicService extends Service {
         mMediaPlayer = new MediaPlayer();
 
         mCurrentPlayingPosition = -1;
+
+        mCurrentPlayingMode = PLAY_MODE_LOOP;
     }
 
     /**
@@ -146,12 +164,43 @@ public class MusicService extends Service {
             return;
         }
 
-        if (switchNext) {
-            mCurrentPlayingPosition = (mCurrentPlayingPosition + 1) % mMusicDatas.size();
-        } else {
-            mCurrentPlayingPosition = ((mCurrentPlayingPosition - 1) < 0) ? (mMusicDatas.size() - 1) : (mCurrentPlayingPosition - 1);
+        if (mCurrentPlayingMode == PLAY_MODE_LOOP) {
+            if (switchNext) {
+                mCurrentPlayingPosition = (mCurrentPlayingPosition + 1) % mMusicDatas.size();
+            } else {
+                mCurrentPlayingPosition = ((mCurrentPlayingPosition - 1) < 0) ? (mMusicDatas.size() - 1) : (mCurrentPlayingPosition - 1);
+            }
+        } else if (mCurrentPlayingMode == PLAY_MODE_RANDOM) {
+            Random random = new Random();
+
+            if(mCurrentPlayingPosition == 0) {
+                mCurrentPlayingPosition = random.nextInt(mMusicDatas.size() - mCurrentPlayingPosition - 1) + mCurrentPlayingPosition + 1;
+            } else if(mCurrentPlayingPosition == mMusicDatas.size() - 1) {
+                mCurrentPlayingPosition = random.nextInt(mCurrentPlayingPosition);
+            } else {
+                int seed = random.nextInt(2);
+
+                if (seed == 0 && mCurrentPlayingPosition > 0) {
+                    mCurrentPlayingPosition = random.nextInt(mCurrentPlayingPosition);
+                } else {
+                    mCurrentPlayingPosition = random.nextInt(mMusicDatas.size() - mCurrentPlayingPosition - 1) + mCurrentPlayingPosition + 1;
+                }
+            }
         }
         startMusic();
+    }
+
+    /**
+     * 切换播放模式
+     *
+     * @param mode PLAY_MODE_LOOP - 循环播放 PLAY_MODE_RANDOM - 随机播放
+     */
+    public void switchMode(int mode) {
+        if (mode != PLAY_MODE_LOOP && mode != PLAY_MODE_RANDOM) {
+            return;
+        }
+
+        mCurrentPlayingMode = mode;
     }
 
     /**

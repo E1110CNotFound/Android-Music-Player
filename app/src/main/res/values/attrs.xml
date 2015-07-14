@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
-    <declare-styleable name="MusicItemView">
+    <declare-styleable name="ItemView">
 
         <attr name="item_divider_height" format="dimension"/>
 
