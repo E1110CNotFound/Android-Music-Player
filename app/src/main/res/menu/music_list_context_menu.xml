@@ -4,4 +4,7 @@
     <item android:id="@+id/action_music_detail"
         android:title="@string/action_music_detail"/>
 
+    <item android:id="@+id/action_set_voice"
+          android:title="@string/action_set_voice"/>
+
 </menu>

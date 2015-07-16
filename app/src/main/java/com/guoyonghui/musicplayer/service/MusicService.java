@@ -3,16 +3,13 @@ package com.guoyonghui.musicplayer.service;
 import android.app.Service;
 import android.content.Intent;
 import android.media.MediaPlayer;
-import android.media.TimedText;
 import android.os.Binder;
 import android.os.IBinder;
-import android.util.Log;
 
 import com.guoyonghui.musicplayer.model.Music;
 import com.guoyonghui.musicplayer.ui.activity.MusicPlayerActivity;
 import com.guoyonghui.musicplayer.ui.fragment.MusicBrowserFragment;
 import com.guoyonghui.musicplayer.ui.fragment.PlaybackControlFragment;
-import com.guoyonghui.musicplayer.util.LogHelper;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -26,8 +23,6 @@ import java.util.Random;
  *         音乐播放服务类
  */
 public class MusicService extends Service {
-
-    private static final String TAG = LogHelper.makeLogTag(MusicService.class);
 
     /**
      * ACTION - 当前播放的音乐
@@ -173,9 +168,9 @@ public class MusicService extends Service {
         } else if (mCurrentPlayingMode == PLAY_MODE_RANDOM) {
             Random random = new Random();
 
-            if(mCurrentPlayingPosition == 0) {
+            if (mCurrentPlayingPosition == 0) {
                 mCurrentPlayingPosition = random.nextInt(mMusicDatas.size() - mCurrentPlayingPosition - 1) + mCurrentPlayingPosition + 1;
-            } else if(mCurrentPlayingPosition == mMusicDatas.size() - 1) {
+            } else if (mCurrentPlayingPosition == mMusicDatas.size() - 1) {
                 mCurrentPlayingPosition = random.nextInt(mCurrentPlayingPosition);
             } else {
                 int seed = random.nextInt(2);

@@ -19,12 +19,18 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Created by 永辉 on 2015/7/14.
+ * DetailBrowserFragment
+ *
+ * @author Guo Yonghui
+ *         <p/>
+ *         音乐详情页
  */
 public class DetailBrowserFragment extends DialogFragment {
 
+    /**
+     * EXTRA - 详情所属的音乐
+     */
     public static final String EXTRA_MUSIC_DETAIL = "com.guoyonghui.musicplayerEXTRA_MUSIC_DETAIL";
-
 
     /**
      * 详情数据
@@ -32,10 +38,11 @@ public class DetailBrowserFragment extends DialogFragment {
     private ArrayList<Detail> mDetails;
 
     /**
-     * 详情列表
+     * 创建一个附有音实例参数的DetailBrowserFragment实例
+     *
+     * @param music 音乐实例
+     * @return 附有音乐实例的DetailBrowserFragment实例
      */
-    private ElasticListView mDetailList;
-
     public static DetailBrowserFragment newInstance(Music music) {
         DetailBrowserFragment fragment = new DetailBrowserFragment();
         Bundle args = new Bundle();
@@ -55,10 +62,10 @@ public class DetailBrowserFragment extends DialogFragment {
 
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState) {
-        View view = getActivity().getLayoutInflater().inflate(R.layout.fragment_music_detail, null);
+        View view = getActivity().getLayoutInflater().inflate(R.layout.fragment_detail_browser, null);
 
-        mDetailList = (ElasticListView) view.findViewById(R.id.music_detail_list);
-        mDetailList.setAdapter(new DetailBrowserAdapter(mDetails));
+        ElasticListView detailList = (ElasticListView) view.findViewById(R.id.music_detail_list);
+        detailList.setAdapter(new DetailBrowserAdapter(mDetails));
 
         return new AlertDialog.Builder(getActivity())
                 .setView(view)
@@ -74,16 +81,20 @@ public class DetailBrowserFragment extends DialogFragment {
     private void analysisMusicDetail(Music music) {
         mDetails = new ArrayList<>();
 
-        mDetails.add(new Detail("标题", music.getTitle()));
-        mDetails.add(new Detail("长度", music.getDuration() / 1000 / 60 + ":" + music.getDuration() / 1000 % 60));
-        mDetails.add(new Detail("文件名", music.getDisplayName()));
-        mDetails.add(new Detail("艺术家", music.getArtist()));
-        mDetails.add(new Detail("专辑", music.getAlbum()));
-        mDetails.add(new Detail("位置", music.getPath()));
+        mDetails.add(new Detail(getResources().getString(R.string.detail_title), music.getTitle()));
+        mDetails.add(new Detail(getResources().getString(R.string.detail_duration), music.getDuration() / 1000 / 60 + ":" + music.getDuration() / 1000 % 60));
+        mDetails.add(new Detail(getResources().getString(R.string.detail_display_name), music.getDisplayName()));
+        mDetails.add(new Detail(getResources().getString(R.string.detail_artist), music.getArtist()));
+        mDetails.add(new Detail(getResources().getString(R.string.detail_album), music.getAlbum()));
+        mDetails.add(new Detail(getResources().getString(R.string.detail_path), music.getPath()));
     }
 
+    /**
+     * 详情列表适配器
+     * 使用ViewHolder模式提高加载效率
+     */
     private class DetailBrowserAdapter extends ArrayAdapter<Detail> {
-        
+
         public DetailBrowserAdapter(List<Detail> details) {
             super(getActivity(), R.layout.detail_item, details);
         }
@@ -96,7 +107,7 @@ public class DetailBrowserFragment extends DialogFragment {
         @Override
         public View getView(int position, View convertView, ViewGroup parent) {
             ViewHolder viewHolder;
-            if(convertView == null) {
+            if (convertView == null) {
                 convertView = LayoutInflater.from(getActivity()).inflate(R.layout.detail_item, parent, false);
 
                 viewHolder = new ViewHolder();
@@ -118,7 +129,7 @@ public class DetailBrowserFragment extends DialogFragment {
 
         private class ViewHolder {
             TextView detailTitleTextView;
-            
+
             TextView detailContentTextView;
         }
     }

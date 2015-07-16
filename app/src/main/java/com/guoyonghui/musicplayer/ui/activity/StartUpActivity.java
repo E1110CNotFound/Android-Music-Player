@@ -33,8 +33,6 @@ public class StartUpActivity extends AppCompatActivity {
 
     public static final String TAG = LogHelper.makeLogTag(StartUpActivity.class);
 
-    private TextView mAppNameTextView;
-
     private BroadcastReceiver mMediaScannerFinishedReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
@@ -57,12 +55,17 @@ public class StartUpActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_start_up);
 
-        mAppNameTextView = (TextView) findViewById(R.id.app_name_text);
-        SpannableStringBuilder builder = new SpannableStringBuilder(mAppNameTextView.getText());
-        builder.setSpan(new ForegroundColorSpan(Color.RED), 1, 2, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
-        mAppNameTextView.setText(builder);
+        TextView appNameTextView;
+        appNameTextView = (TextView) findViewById(R.id.app_name_text);
+        SpannableStringBuilder builder = new SpannableStringBuilder(appNameTextView.getText());
+        builder.setSpan(new ForegroundColorSpan(Color.RED), 2, 3, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+        appNameTextView.setText(builder);
 
-        sendBroadcast(new Intent(Intent.ACTION_MEDIA_MOUNTED, Uri.parse("file://" + Environment.getExternalStorageDirectory().getAbsolutePath())));
+//        sendBroadcast(new Intent(Intent.ACTION_MEDIA_MOUNTED, Uri.parse("file://" + Environment.getExternalStorageDirectory().getAbsolutePath())));
+
+        ArrayList<Music> musicDatas = MusicHelper.scanMusic(StartUpActivity.this);
+
+        launchMusicPlayerActivity(musicDatas);
     }
 
     @Override

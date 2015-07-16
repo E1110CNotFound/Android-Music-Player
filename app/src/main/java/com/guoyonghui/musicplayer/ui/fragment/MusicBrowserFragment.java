@@ -3,10 +3,14 @@ package com.guoyonghui.musicplayer.ui.fragment;
 import android.app.Activity;
 import android.content.BroadcastReceiver;
 import android.content.ContentUris;
+import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.database.Cursor;
+import android.net.Uri;
 import android.os.Bundle;
+import android.provider.MediaStore;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
@@ -50,6 +54,11 @@ public class MusicBrowserFragment extends Fragment {
      * EXTRA - 当前播放的音乐的位置
      */
     public static final String EXTRA_CURRENT_PLAYING_MUSIC_POSITION = "com.guoyonghui.musicplayer.EXTRA_CURRENT_PLAYING_MUSIC_POSITION";
+
+    /**
+     * REQUEST - 请求设置默认声音
+     */
+    public static final int REQUEST_SET_DEFAULT_VOICE = 0;
 
     /**
      * 当前播放音乐在列表中的位置
@@ -159,15 +168,20 @@ public class MusicBrowserFragment extends Fragment {
 
     @Override
     public boolean onContextItemSelected(MenuItem item) {
-        AdapterView.AdapterContextMenuInfo info = (AdapterView.AdapterContextMenuInfo)item.getMenuInfo();
+        AdapterView.AdapterContextMenuInfo info = (AdapterView.AdapterContextMenuInfo) item.getMenuInfo();
         int position = info.position;
         Music music = (Music) (mMusicList.getAdapter().getItem(position));
 
+        FragmentManager fm = getActivity().getSupportFragmentManager();
         switch (item.getItemId()) {
             case R.id.action_music_detail:
                 DetailBrowserFragment detailBrowserFragment = DetailBrowserFragment.newInstance(music);
-                FragmentManager fm = getActivity().getSupportFragmentManager();
                 detailBrowserFragment.show(fm, LogHelper.makeLogTag(DetailBrowserFragment.class));
+                break;
+            case R.id.action_set_voice:
+                DefaultVoiceSettingFragment defaultVoiceSettingFragment = DefaultVoiceSettingFragment.newInstance(music.getPath());
+                defaultVoiceSettingFragment.setTargetFragment(MusicBrowserFragment.this, REQUEST_SET_DEFAULT_VOICE);
+                defaultVoiceSettingFragment.show(fm, LogHelper.makeLogTag(DetailBrowserFragment.class));
                 break;
 
             default:
@@ -193,6 +207,21 @@ public class MusicBrowserFragment extends Fragment {
         mCallback = null;
 
         getActivity().unregisterReceiver(mCurrentPlayingMusicReceiver);
+    }
+
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        if(resultCode != Activity.RESULT_OK) {
+            return;
+        }
+
+        if(requestCode == REQUEST_SET_DEFAULT_VOICE) {
+            String defualtVoiceSettingResult = data.getStringExtra(DefaultVoiceSettingFragment.EXTRA_DEFAULT_VOICE_SETTING_RESULT);
+
+            if(defualtVoiceSettingResult != null) {
+                Toast.makeText(getActivity(), defualtVoiceSettingResult, Toast.LENGTH_SHORT).show();
+            }
+        }
     }
 
     /**
@@ -322,39 +351,3 @@ public class MusicBrowserFragment extends Fragment {
         }
     }
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

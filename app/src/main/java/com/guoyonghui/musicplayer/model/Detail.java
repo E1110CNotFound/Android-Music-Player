@@ -1,7 +1,11 @@
 package com.guoyonghui.musicplayer.model;
 
 /**
- * Created by 永辉 on 2015/7/14.
+ * Detail
+ *
+ * @author Guo Yonghui
+ *         <p/>
+ *         音乐详情类
  */
 public class Detail {
 

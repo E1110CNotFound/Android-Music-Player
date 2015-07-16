@@ -3,23 +3,42 @@
     <dimen name="activity_horizontal_margin">16dp</dimen>
     <dimen name="activity_vertical_margin">16dp</dimen>
 
+    <!-- 分隔线高度-->
     <dimen name="divider_height">1px</dimen>
-    
+
+    <!-- 音乐项/详情项的高度-->
     <dimen name="item_height">64dp</dimen>
+    <!-- 音乐项/详情项的内边距-->
     <dimen name="item_padding">8dp</dimen>
 
+    <!-- 音乐项中专辑封面尺寸-->
     <dimen name="music_item_album_art_size">64dp</dimen>
+    <!-- 音乐项中状态视图尺寸-->
     <dimen name="music_item_status_size">48dp</dimen>
+    <!-- 音乐项中状态视图内边距-->
     <dimen name="music_item_status_padding">8dp</dimen>
+    <!-- 音乐项中文字左部外边距-->
     <dimen name="music_item_text_margin_start">72dp</dimen>
 
+    <!-- 音乐控制栏中音乐信息布局尺寸-->
     <dimen name="playback_control_info_size">240dp</dimen>
+    <!-- 音乐控制栏中音乐信息布局外边距-->
     <dimen name="playback_control_info_margin">8dp</dimen>
+    <!-- 音乐控制栏内边距-->
     <dimen name="playback_control_padding">8dp</dimen>
+    <!-- 音乐控制栏中音乐封面尺寸-->
     <dimen name="playback_control_album_art_size">48dp</dimen>
+    <!-- 音乐控制栏中音乐封面内边距-->
     <dimen name="playback_control_album_art_padding">8dp</dimen>
+    <!-- 音乐控制栏中按钮尺寸-->
     <dimen name="playback_control_button_size">48dp</dimen>
+    <!-- 音乐控制栏中按钮内边距-->
     <dimen name="playback_control_button_padding">4dp</dimen>
+    <!-- 音乐控制栏中按钮外边距-->
     <dimen name="playback_control_button_margin">64dp</dimen>
+
+    <dimen name="voice_setting_button_height">40dp</dimen>
+    <dimen name="voice_setting_button_width">160dp</dimen>
+    <dimen name="voice_setting_button_margin">20dp</dimen>
 
 </resources>

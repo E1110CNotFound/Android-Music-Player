@@ -2,6 +2,7 @@
     <string name="app_name">FEVER</string>
 
     <string name="action_music_detail">详情</string>
+    <string name="action_set_voice">设为默认音</string>
 
     <string name="description_album_art">Album Art</string>
     <string name="description_status">Status</string>
@@ -10,5 +11,18 @@
     <string name="description_play_pause">Play/Pause</string>
     <string name="description_mode_loop">Loop Mode</string>
     <string name="description_mode_random">Random Mode</string>
+
+    <string name="detail_title">标题</string>
+    <string name="detail_duration">时长</string>
+    <string name="detail_display_name">文件名</string>
+    <string name="detail_artist">艺术家</string>
+    <string name="detail_album">专辑</string>
+    <string name="detail_path">位置</string>
+
+    <string name="set_default_ringtone">设为铃声</string>
+    <string name="set_default_alarm">设为闹铃音</string>
+    <string name="set_default_notification">设为通知音</string>
+
+    <string name="tip_set_voice_result">设置默认%1$s%2$s</string>
 
 </resources>

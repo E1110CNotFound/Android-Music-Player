@@ -6,7 +6,11 @@ import android.os.Parcelable;
 import android.provider.MediaStore;
 
 /**
- * Created by 永辉 on 2015/6/23.
+ * Music
+ *
+ * @author Guo Yonghui
+ *         <p/>
+ *         音乐类
  */
 public class Music implements Parcelable {
 
