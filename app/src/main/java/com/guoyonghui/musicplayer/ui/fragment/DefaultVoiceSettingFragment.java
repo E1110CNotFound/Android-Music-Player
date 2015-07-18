@@ -21,7 +21,7 @@ import com.guoyonghui.musicplayer.constant.Constants;
 /**
  * DefaultVoiceSettingFragment
  *
- * @author Guo Yonghui
+ * @author Ma Min
  *         <p/>
  *         设置默认的声音（默认铃声、默认通知音以及默认闹铃音）
  */

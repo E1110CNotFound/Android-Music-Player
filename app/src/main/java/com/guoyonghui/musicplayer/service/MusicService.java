@@ -13,12 +13,14 @@ import com.guoyonghui.musicplayer.ui.fragment.PlaybackControlFragment;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Random;
 
 /**
  * MusicService
  *
- * @author Guo Yonghui
+ * @author He Yanglong
  *         <p/>
  *         音乐播放服务类
  */
@@ -59,9 +61,15 @@ public class MusicService extends Service {
      */
     private ArrayList<Music> mMusicDatas;
 
+    private ArrayList<Integer> mLoopOrder;
+
+    private ArrayList<Integer> mRandomOrder;
+
     @Override
     public IBinder onBind(Intent intent) {
         mMusicDatas = intent.getParcelableArrayListExtra(MusicPlayerActivity.EXTRA_MUSIC_DATAS);
+
+        generateLoopRandomMap();
 
         return new MusicBinder();
     }
@@ -103,12 +111,18 @@ public class MusicService extends Service {
      * 开始播放音乐
      */
     public void startMusic() {
-        Music music = mMusicDatas.get(mCurrentPlayingPosition);
+        int index = 0;
+        if(mCurrentPlayingMode == PLAY_MODE_LOOP) {
+            index = mLoopOrder.get(mCurrentPlayingPosition);
+        } else if(mCurrentPlayingMode == PLAY_MODE_RANDOM) {
+            index = mRandomOrder.get(mCurrentPlayingPosition);
+        }
+        Music music = mMusicDatas.get(index);
         if (music == null) {
             return;
         }
 
-        notifyCurrentPlayingMusic();
+        notifyCurrentPlayingMusic(index);
 
         mMediaPlayer.reset();
         try {
@@ -158,30 +172,12 @@ public class MusicService extends Service {
             startMusic();
             return;
         }
-
-        if (mCurrentPlayingMode == PLAY_MODE_LOOP) {
-            if (switchNext) {
-                mCurrentPlayingPosition = (mCurrentPlayingPosition + 1) % mMusicDatas.size();
-            } else {
-                mCurrentPlayingPosition = ((mCurrentPlayingPosition - 1) < 0) ? (mMusicDatas.size() - 1) : (mCurrentPlayingPosition - 1);
-            }
-        } else if (mCurrentPlayingMode == PLAY_MODE_RANDOM) {
-            Random random = new Random();
-
-            if (mCurrentPlayingPosition == 0) {
-                mCurrentPlayingPosition = random.nextInt(mMusicDatas.size() - mCurrentPlayingPosition - 1) + mCurrentPlayingPosition + 1;
-            } else if (mCurrentPlayingPosition == mMusicDatas.size() - 1) {
-                mCurrentPlayingPosition = random.nextInt(mCurrentPlayingPosition);
-            } else {
-                int seed = random.nextInt(2);
-
-                if (seed == 0 && mCurrentPlayingPosition > 0) {
-                    mCurrentPlayingPosition = random.nextInt(mCurrentPlayingPosition);
-                } else {
-                    mCurrentPlayingPosition = random.nextInt(mMusicDatas.size() - mCurrentPlayingPosition - 1) + mCurrentPlayingPosition + 1;
-                }
-            }
+        if (switchNext) {
+            mCurrentPlayingPosition = (mCurrentPlayingPosition + 1) % mMusicDatas.size();
+        } else {
+            mCurrentPlayingPosition = ((mCurrentPlayingPosition - 1) < 0) ? (mMusicDatas.size() - 1) : (mCurrentPlayingPosition - 1);
         }
+
         startMusic();
     }
 
@@ -194,20 +190,62 @@ public class MusicService extends Service {
         if (mode != PLAY_MODE_LOOP && mode != PLAY_MODE_RANDOM) {
             return;
         }
+        if(mode == mCurrentPlayingMode) {
+            return;
+        }
 
         mCurrentPlayingMode = mode;
+        if(mCurrentPlayingMode == PLAY_MODE_LOOP) {
+            mCurrentPlayingPosition = mLoopOrder.indexOf(mRandomOrder.get(mCurrentPlayingPosition));
+        } else if(mCurrentPlayingMode == PLAY_MODE_RANDOM) {
+            mCurrentPlayingPosition = mRandomOrder.indexOf(mLoopOrder.get(mCurrentPlayingPosition));
+        }
     }
 
     /**
      * 发送广播通知fragment当前播放的歌曲
+     *
+     * @param index 当前播放歌曲在音乐列表中的位置
      */
-    private void notifyCurrentPlayingMusic() {
-        Music music = mMusicDatas.get(mCurrentPlayingPosition);
+    private void notifyCurrentPlayingMusic(int index) {
+        Music music = mMusicDatas.get(index);
 
         Intent intent = new Intent(ACTION_CURRENT_PLAYING_MUSIC);
         intent.putExtra(PlaybackControlFragment.EXTRA_CURRENT_PLAYING_MUSIC_DATA, music);
-        intent.putExtra(MusicBrowserFragment.EXTRA_CURRENT_PLAYING_MUSIC_POSITION, mCurrentPlayingPosition);
+        intent.putExtra(MusicBrowserFragment.EXTRA_CURRENT_PLAYING_MUSIC_POSITION, index);
         sendBroadcast(intent);
+    }
+
+    /**
+     * 生成顺序播放列表和随机播放列表
+     */
+    private void generateLoopRandomMap() {
+        int length = mMusicDatas.size();
+
+        mLoopOrder = new ArrayList<>();
+        mRandomOrder = new ArrayList<>();
+
+        int[] loopArray = new int[length];
+        int[] randomArray = new int[length];
+
+        for (int i = 0; i < length; i++) {
+            loopArray[i] = i;
+            randomArray[i] = 0;
+        }
+
+        int randomCount = 0;
+        int randomIndex = 0;
+
+        do {
+            randomIndex = new Random().nextInt(length - randomCount);
+
+            randomArray[randomCount] = loopArray[randomIndex];
+
+            mLoopOrder.add(randomCount);
+            mRandomOrder.add(randomArray[randomCount]);
+
+            loopArray[randomIndex] = loopArray[length - ++randomCount];
+        } while (randomCount < length);
     }
 
     public class MusicBinder extends Binder {

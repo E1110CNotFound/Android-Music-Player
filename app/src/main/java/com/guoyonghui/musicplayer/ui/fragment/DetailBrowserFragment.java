@@ -21,7 +21,7 @@ import java.util.List;
 /**
  * DetailBrowserFragment
  *
- * @author Guo Yonghui
+ * @author He Yanglong
  *         <p/>
  *         音乐详情页
  */

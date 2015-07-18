@@ -1,7 +1,11 @@
 package com.guoyonghui.musicplayer.constant;
 
 /**
- * Created by 永辉 on 2015/7/15.
+ * Constants
+ *
+ * @author Guo Yonghui
+ *
+ * 常亮
  */
 public interface Constants {
 

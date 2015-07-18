@@ -25,7 +25,7 @@ import java.util.ArrayList;
 /**
  * StartUpActivity
  *
- * @author Guo Yonghui
+ * @author Ma Min
  *         <p/>
  *         应用启动界面，扫描本机音乐并加载数据
  */
