@@ -13,8 +13,6 @@ import com.guoyonghui.musicplayer.ui.fragment.PlaybackControlFragment;
 
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Map;
 import java.util.Random;
 
 /**
@@ -187,14 +185,14 @@ public class MusicService extends Service {
      * @param mode PLAY_MODE_LOOP - 循环播放 PLAY_MODE_RANDOM - 随机播放
      */
     public void switchMode(int mode) {
-        if (mode != PLAY_MODE_LOOP && mode != PLAY_MODE_RANDOM) {
-            return;
-        }
         if(mode == mCurrentPlayingMode) {
             return;
         }
 
         mCurrentPlayingMode = mode;
+        if(mCurrentPlayingPosition == -1) {
+            return;
+        }
         if(mCurrentPlayingMode == PLAY_MODE_LOOP) {
             mCurrentPlayingPosition = mLoopOrder.indexOf(mRandomOrder.get(mCurrentPlayingPosition));
         } else if(mCurrentPlayingMode == PLAY_MODE_RANDOM) {
@@ -226,23 +224,19 @@ public class MusicService extends Service {
         mRandomOrder = new ArrayList<>();
 
         int[] loopArray = new int[length];
-        int[] randomArray = new int[length];
 
         for (int i = 0; i < length; i++) {
             loopArray[i] = i;
-            randomArray[i] = 0;
         }
 
         int randomCount = 0;
-        int randomIndex = 0;
+        int randomIndex;
 
         do {
             randomIndex = new Random().nextInt(length - randomCount);
 
-            randomArray[randomCount] = loopArray[randomIndex];
-
             mLoopOrder.add(randomCount);
-            mRandomOrder.add(randomArray[randomCount]);
+            mRandomOrder.add(loopArray[randomIndex]);
 
             loopArray[randomIndex] = loopArray[length - ++randomCount];
         } while (randomCount < length);

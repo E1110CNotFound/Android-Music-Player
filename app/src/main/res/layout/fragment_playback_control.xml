@@ -67,7 +67,7 @@
             android:background="@null"
             android:contentDescription="@string/description_play_pause"
             android:padding="@dimen/playback_control_padding"
-            android:src="@drawable/ic_control_play_white_36dp"/>
+            android:src="@drawable/btn_playback_play_light"/>
 
         <ImageButton
             android:id="@+id/next"
@@ -79,7 +79,7 @@
             android:background="@null"
             android:contentDescription="@string/description_next"
             android:padding="@dimen/playback_control_padding"
-            android:src="@drawable/ic_control_next_white_36dp"/>
+            android:src="@drawable/btn_playback_next_light"/>
 
         <ImageButton
             android:id="@+id/prev"
@@ -91,7 +91,7 @@
             android:background="@null"
             android:contentDescription="@string/description_prev"
             android:padding="@dimen/playback_control_padding"
-            android:src="@drawable/ic_control_prev_white_36dp"/>
+            android:src="@drawable/btn_playback_previous_light"/>
 
         <ImageButton
             android:id="@+id/random_mode"
@@ -104,7 +104,7 @@
             android:contentDescription="@string/description_mode_random"
             android:padding="@dimen/playback_control_padding"
             android:scaleType="centerCrop"
-            android:src="@drawable/ic_mode_random_off"/>
+            android:src="@drawable/btn_playback_shuffle"/>
 
         <ImageButton
             android:id="@+id/loop_mode"
@@ -117,7 +117,7 @@
             android:contentDescription="@string/description_mode_loop"
             android:padding="@dimen/playback_control_padding"
             android:scaleType="centerCrop"
-            android:src="@drawable/ic_mode_loop_on"/>
+            android:src="@drawable/btn_playback_repeat_all"/>
 
     </RelativeLayout>
 </LinearLayout>

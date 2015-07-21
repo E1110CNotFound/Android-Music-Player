@@ -204,7 +204,7 @@ public class PlaybackControlFragment extends Fragment implements View.OnClickLis
                 break;
             case R.id.play_pause:
                 mIsPlaying = !mIsPlaying;
-                mPlayPauseButton.setImageResource(mIsPlaying ? R.drawable.ic_control_pause_white_36dp : R.drawable.ic_control_play_white_36dp);
+                mPlayPauseButton.setImageResource(mIsPlaying ? R.drawable.btn_playback_pause_light : R.drawable.btn_playback_play_light);
 
                 mCallback.onMusicPlayPause(mIsPlaying);
                 break;
@@ -215,8 +215,8 @@ public class PlaybackControlFragment extends Fragment implements View.OnClickLis
 
                 mPlayMode = MusicService.PLAY_MODE_LOOP;
 
-                mLoopModeButton.setImageResource(R.drawable.ic_mode_loop_on);
-                mRandomModeButton.setImageResource(R.drawable.ic_mode_random_off);
+                mLoopModeButton.setImageResource(R.drawable.btn_playback_repeat_all);
+                mRandomModeButton.setImageResource(R.drawable.btn_playback_shuffle);
 
                 mCallback.onModeSwitch(mPlayMode);
                 break;
@@ -227,8 +227,8 @@ public class PlaybackControlFragment extends Fragment implements View.OnClickLis
 
                 mPlayMode = MusicService.PLAY_MODE_RANDOM;
 
-                mLoopModeButton.setImageResource(R.drawable.ic_mode_loop_off);
-                mRandomModeButton.setImageResource(R.drawable.ic_mode_random_on);
+                mLoopModeButton.setImageResource(R.drawable.btn_playback_repeat);
+                mRandomModeButton.setImageResource(R.drawable.btn_playback_shuffle_all);
 
                 mCallback.onModeSwitch(mPlayMode);
                 break;
@@ -295,7 +295,7 @@ public class PlaybackControlFragment extends Fragment implements View.OnClickLis
 
         mCurrentPlayingTitleTextView.setText(music.getTitle());
         mCurrentPlayingArtistTextView.setText(music.getArtist());
-        mPlayPauseButton.setImageResource(mIsPlaying ? R.drawable.ic_control_pause_white_36dp : R.drawable.ic_control_play_white_36dp);
+        mPlayPauseButton.setImageResource(mIsPlaying ? R.drawable.btn_playback_pause_light : R.drawable.btn_playback_play_light);
 
     }
 }
